@@ -172,7 +172,7 @@ class Step2 extends \Opencart\System\Engine\Controller {
 			$json['error'] = $this->language->get('error_file_upload');
 		}
 
-		if (ini_get('session.auto_start')) {
+		if (ini_get('session.auto_start') && ini_get('session.auto_start') != 'Off') {
 			$json['error'] = $this->language->get('error_session');
 		}
 
