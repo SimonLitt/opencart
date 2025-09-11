@@ -226,7 +226,7 @@ function oc_directory_create(string $path, int $permission = 0777): bool {
 
 	foreach ($directories as $directory) {
 		if (!$path_new) {
-			$path_new = $directory;
+			$path_new = '/';
 		} else {
 			$path_new = $path_new . '/' . $directory;
 		}
