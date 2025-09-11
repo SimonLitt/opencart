@@ -59,7 +59,8 @@ An example of how you can create queries within a model:
 			'q.sort_order'
 
 		];
-		$sql .= $this->getSqlOrder($data, $sort_fields, ['q2g.name', 'qd.name']);
+  		$default_sort = ['q2g.name', 'qd.name'];
+		$sql .= $this->getSqlOrder($data, $sort_fields, default_sort);
 		$sql .= $this->getSqlLimit($data);
 
 		$query = $this->db->query($sql);
