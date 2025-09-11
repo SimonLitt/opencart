@@ -57,7 +57,7 @@ class Controller {
 	}
 
 	/**
-	 * common_controls
+	 * commonControls
 	 *
 	 * Loads controls into the $data
 	 *
@@ -65,7 +65,7 @@ class Controller {
 	 *
 	 * @return void
 	 */
-	protected function common_controls(array &$data): void {
+	protected function commonControls(array &$data): void {
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['column_right'] = $this->load->controller('common/column_right');
 		$data['content_top'] = $this->load->controller('common/content_top');

@@ -19,9 +19,9 @@ So here will be my basic fork with changes and additions made in different proje
 
 ### Controller helper functions
 
-#### common_controls
+#### commonControls
 
-`common_controls(array &$data): void`
+`commonControls(array &$data): void`
 
 Replaces 6 lines of code used in the vast majority of controllers with a helper function
 
@@ -36,4 +36,4 @@ Instead:
 
 You can just write:
 
-		$this->common_controls($data);
+		$this->commonControls($data);
