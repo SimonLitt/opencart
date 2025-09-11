@@ -37,3 +37,31 @@ Instead:
 You can just write:
 
 		$this->commonControls($data);
+
+## More will be added
+
+- a set of helper functions for using controls;
+- a set of helper functions for building queries;
+- transactional data saving;
+- centralized validation of mutually nested data.
+
+### Future examples
+
+An example of how you can create queries within a model:
+
+		$this->sqlFilterId($sql, $data, 'filter_row_id', 'q2r.row_id');
+  		$this->sqlFilterBool($sql, $data, 'filter_status', 'q.status');
+
+		$sort_fields = [
+  			'qd.name' => ['is_cast_as_uint' => true, 'is_lcase' => true],
+	 		'q2g.name',
+			'q.code' => ['is_lcase' => true],
+			'q.sort_order'
+
+		];
+		$sql .= $this->getSqlOrder($data, $sort_fields, ['q2g.name', 'qd.name']);
+		$sql .= $this->getSqlLimit($data);
+
+		$query = $this->db->query($sql);
+  
+
