@@ -17,4 +17,23 @@ So here will be my basic fork with changes and additions made in different proje
 
 ## Сhanges
 
-Description of my changes will be here...
+### Controller helper functions
+
+#### common_controls
+
+`common_controls(array &$data): void`
+
+Replaces 6 lines of code used in the vast majority of controllers with a helper function
+
+Instead:
+
+		$data['column_left'] = $this->load->controller('common/column_left');
+		$data['column_right'] = $this->load->controller('common/column_right');
+		$data['content_top'] = $this->load->controller('common/content_top');
+		$data['content_bottom'] = $this->load->controller('common/content_bottom');
+		$data['footer'] = $this->load->controller('common/footer');
+		$data['header'] = $this->load->controller('common/header');
+
+You can just write:
+
+		$this->common_controls($data);

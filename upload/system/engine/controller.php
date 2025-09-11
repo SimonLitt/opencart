@@ -55,4 +55,22 @@ class Controller {
 	public function __set(string $key, object $value): void {
 		$this->registry->set($key, $value);
 	}
+
+	/**
+	 * common_controls
+	 *
+	 * Loads controls into the $data
+	 *
+	 * @param array $data Reference to the contol data
+	 *
+	 * @return void
+	 */
+	protected function common_controls(array &$data): void {
+		$data['column_left'] = $this->load->controller('common/column_left');
+		$data['column_right'] = $this->load->controller('common/column_right');
+		$data['content_top'] = $this->load->controller('common/content_top');
+		$data['content_bottom'] = $this->load->controller('common/content_bottom');
+		$data['footer'] = $this->load->controller('common/footer');
+		$data['header'] = $this->load->controller('common/header');
+	}
 }
