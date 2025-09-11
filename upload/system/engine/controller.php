@@ -57,7 +57,7 @@ class Controller {
 	}
 
 	/**
-	 * collect_get
+	 * collectGet
 	 *
 	 * Сollects all or the requested query parameters into a string
 	 *
@@ -66,7 +66,7 @@ class Controller {
 	 *
 	 * @return string Part of the query URL as string.
 	 */
-	protected function collect_get(array $keys = [], bool $is_leading_ampersand = true): string {
+	protected function collectGet(array $keys = [], bool $is_leading_ampersand = true): string {
 		$param_list = [];
 		if ($keys) {
 			foreach($keys as $key) {
