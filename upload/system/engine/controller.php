@@ -55,4 +55,34 @@ class Controller {
 	public function __set(string $key, object $value): void {
 		$this->registry->set($key, $value);
 	}
+
+	/**
+	 * collect_get
+	 *
+	 * Сollects all or the requested query parameters into a string
+	 *
+	 * @param array<int, string> $keys List of parameters that need to be collected, if not specified - will collect all parameters. Default empty array.
+	 * @param bool $is_leading_ampersand Whether to add a leading ampersand. Default true.
+	 *
+	 * @return void
+	 */
+	protected function collect_get(array $keys = [], bool $is_leading_ampersand = true): string {
+		$param_list = [];
+		if ($keys) {
+			foreach($keys as $key) {
+				if (isset($this->request->get[$key])) {
+					$param_list[] = $key . '=' . $this->request->get[$key];
+				}
+			}
+		} else {
+			foreach($this->request->get as $key => $val) {
+				$param_list[] = $key . '=' . $val;
+			}
+		}
+		$url = implode("&", $param_list);
+		if ($is_leading_ampersand && !empty($url)) {
+			$url = '&' . $url;
+		}
+		return $url;
+	}
 }
