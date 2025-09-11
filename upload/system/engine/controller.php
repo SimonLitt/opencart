@@ -64,7 +64,7 @@ class Controller {
 	 * @param array<int, string> $keys List of parameters that need to be collected, if not specified - will collect all parameters. Default empty array.
 	 * @param bool $is_leading_ampersand Whether to add a leading ampersand. Default true.
 	 *
-	 * @return void
+	 * @return string Part of the query URL as string.
 	 */
 	protected function collect_get(array $keys = [], bool $is_leading_ampersand = true): string {
 		$param_list = [];
