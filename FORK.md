@@ -10,6 +10,9 @@ So here will be my basic fork with changes and additions made in different proje
 - Publish in this bunch changes that I consider useful not only to me.
 - Create pull requests to the developers of OpenCart if I consider it appropriate.
 - Describe in this file the purpose of the changes and their use.
+### Waiting for a decision on issues and feature requests
+- [#15129](https://github.com/opencart/opencart/issues/15129) - Helper function to collects the GET query parameters into a string
+- [#15167](https://github.com/opencart/opencart/issues/15167) - PHP 8.4 E_DEPRECATED error_handler
 
 ## I won't do 
 
