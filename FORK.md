@@ -13,6 +13,7 @@ So here will be my basic fork with changes and additions made in different proje
 ### Waiting for a decision on issues and feature requests
 - [#15129](https://github.com/opencart/opencart/issues/15129) - Helper function to collects the GET query parameters into a string
 - [#15167](https://github.com/opencart/opencart/issues/15167) - PHP 8.4 E_DEPRECATED error_handler
+- [#15120](https://github.com/opencart/opencart/issues/15120) - addMeta helper
 
 ## I won't do 
 
