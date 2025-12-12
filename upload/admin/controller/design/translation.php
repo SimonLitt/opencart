@@ -34,23 +34,14 @@ class Translation extends \Opencart\System\Engine\Controller {
 			$filter_status = '';
 		}
 
-		$url = '';
+		$allowed = [
+			'filter_store_id',
+			'filter_language_id',
+			'filter_status',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_store_id'])) {
-			$url .= '&filter_store_id=' . (int)$this->request->get['filter_store_id'];
-		}
-
-		if (isset($this->request->get['filter_language_id'])) {
-			$url .= '&filter_language_id=' . (int)$this->request->get['filter_language_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['breadcrumbs'] = [];
 
@@ -135,23 +126,14 @@ class Translation extends \Opencart\System\Engine\Controller {
 			$page = 1;
 		}
 
-		$url = '';
+		$allowed = [
+			'filter_store_id',
+			'filter_language_id',
+			'filter_status',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_store_id'])) {
-			$url .= '&filter_store_id=' . (int)$this->request->get['filter_store_id'];
-		}
-
-		if (isset($this->request->get['filter_language_id'])) {
-			$url .= '&filter_language_id=' . (int)$this->request->get['filter_language_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['action'] = $this->url->link('design/translation.list', 'user_token=' . $this->session->data['user_token'] . $url);
 
@@ -162,10 +144,11 @@ class Translation extends \Opencart\System\Engine\Controller {
 		$data['translations'] = [];
 
 		$filter_data = [
-			'filter_store_id' => $filter_store_id,
-			'filter_status'   => $filter_status,
-			'start'           => ($page - 1) * $this->config->get('config_pagination_admin'),
-			'limit'           => $this->config->get('config_pagination_admin')
+			'filter_store_id'    => $filter_store_id,
+			'filter_language_id' => $filter_language_id,
+			'filter_status'      => $filter_status,
+			'start'              => ($page - 1) * $this->config->get('config_pagination_admin'),
+			'limit'              => $this->config->get('config_pagination_admin')
 		];
 
 		$this->load->model('design/translation');
@@ -191,16 +174,22 @@ class Translation extends \Opencart\System\Engine\Controller {
 			] + $result;
 		}
 
+		$allowed = [
+			'filter_store_id',
+			'filter_language_id',
+			'filter_status'
+		];
+
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
+
 		// Total Translations
 		$translation_total = $this->model_design_translation->getTotalTranslations();
 
 		// Pagination
-		$data['pagination'] = $this->load->controller('common/pagination', [
-			'total' => $translation_total,
-			'page'  => $page,
-			'limit' => $this->config->get('config_pagination_admin'),
-			'url'   => $this->url->link('design/translation.list', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}')
-		]);
+		$data['total'] = $translation_total;
+		$data['page'] = $page;
+		$data['limit'] = $this->config->get('config_pagination_admin');
+		$data['pagination'] = $this->url->link('design/translation.list', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}');
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($translation_total) ? (($page - 1) * $this->config->get('config_pagination_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_pagination_admin')) > ($translation_total - $this->config->get('config_pagination_admin'))) ? $translation_total : ((($page - 1) * $this->config->get('config_pagination_admin')) + $this->config->get('config_pagination_admin')), $translation_total, ceil($translation_total / $this->config->get('config_pagination_admin')));
 
@@ -219,23 +208,14 @@ class Translation extends \Opencart\System\Engine\Controller {
 
 		$data['text_form'] = !isset($this->request->get['translation_id']) ? $this->language->get('text_add') : $this->language->get('text_edit');
 
-		$url = '';
+		$allowed = [
+			'filter_store_id',
+			'filter_language_id',
+			'filter_status',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_store_id'])) {
-			$url .= '&filter_store_id=' . (int)$this->request->get['filter_store_id'];
-		}
-
-		if (isset($this->request->get['filter_language_id'])) {
-			$url .= '&filter_language_id=' . (int)$this->request->get['filter_language_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['breadcrumbs'] = [];
 

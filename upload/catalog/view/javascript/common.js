@@ -1,45 +1,57 @@
-function getURLVar(key) {
-    var value = [];
+import { registry, factory, loader, config, storage, language, template, url, session, local, db, cart, tax, currency } from './opencart.js';
 
-    var query = String(document.location).split('?');
+let app = {};
 
-    if (query[1]) {
-        var part = query[1].split('&');
+await app.load('config', { path: './catalog/view/data/' + base.host + '/config/' });
+await app.load('storage', { path: './catalog/view/data/' + base.host + '/' });
 
-        for (i = 0; i < part.length; i++) {
-            var data = part[i].split('=');
+await app.config('startup');
+await app.storage('startup');
+await app.language('startup');
+await app.template('startup');
 
-            if (data[0] && data[1]) {
-                value[data[0]] = data[1];
-            }
-        }
+await app.url.query('route');
+await app.url.query('token');
 
-        if (value[key]) {
-            return value[key];
-        } else {
-            return '';
-        }
+let api = await request.fetch({
+    url: 'index.php?route=common/home',
+    method: 'post',
+    beforeSend: () => {
+
+    },
+    afterSend: () => {
+
+    },
+    success: () => {
+
+    },
+    error: () => {
+
     }
-}
+});
 
-// Observe
-+function($) {
-    $.fn.observe = function(callback) {
-        observer = new MutationObserver(callback);
+await app.api.send({
+    url: 'index.php?route=common/home',
+    method: 'post',
+    beforeSend: () => {
 
-        observer.observe($(this)[0], {
-            characterData: false,
-            childList: true,
-            attributes: false
-        });
-    };
-}(jQuery);
+    },
+    afterSend: () => {
+
+    },
+    success: () => {
+
+    },
+    error: () => {
+
+    }
+});
 
 $(document).ready(function() {
     // Tooltip
-    var oc_tooltip = function() {
+    let oc_tooltip = function() {
         // Get tooltip instance
-        tooltip = bootstrap.Tooltip.getInstance(this);
+        let tooltip = bootstrap.Tooltip.getInstance(this);
 
         if (!tooltip) {
             // Apply to current element
@@ -53,6 +65,21 @@ $(document).ready(function() {
     $(document).on('click', 'button', function() {
         $('.tooltip').remove();
     });
+});
+
+$(document).ready(function() {
+    // Observe
+    +function($) {
+        $.fn.observe = function(callback) {
+            observer = new MutationObserver(callback);
+
+            observer.observe($(this)[0], {
+                characterData: false,
+                childList: true,
+                attributes: false
+            });
+        };
+    }(jQuery);
 
     $('#alert').observe(function() {
         window.setTimeout(function() {
@@ -61,11 +88,13 @@ $(document).ready(function() {
             });
         }, 3000);
     });
-});
 
-// Button
-$(document).ready(function() {
+    // Button
     +function($) {
+
+
+
+
         $.fn.button = function(state) {
             return this.each(function() {
                 let element = this;
@@ -175,7 +204,7 @@ $(document).on('submit', 'form', function (e) {
                         $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json['error']['warning'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
                     }
 
-                    for (key in json['error']) {
+                    for (let key in json['error']) {
                         $('#input-' + key.replaceAll('_', '-')).addClass('is-invalid').find('.form-control, .form-select, .form-check-input, .form-check-label').addClass('is-invalid');
                         $('#error-' + key.replaceAll('_', '-')).html(json['error'][key]).addClass('d-block');
                     }
@@ -269,40 +298,6 @@ $(document).on('click', 'button[data-oc-toggle=\'upload\']', function() {
         }, 500);
     }
 });
-
-// Chain ajax calls.
-class Chain {
-    constructor() {
-        this.start = false;
-        this.data = [];
-    }
-
-    attach(call) {
-        this.data.push(call);
-
-        if (!this.start) {
-            this.execute();
-        }
-    }
-
-    execute() {
-        if (this.data.length) {
-            this.start = true;
-
-            var call = this.data.shift();
-
-            var jqxhr = call();
-
-            jqxhr.done(function() {
-                chain.execute();
-            });
-        } else {
-            this.start = false;
-        }
-    }
-}
-
-var chain = new Chain();
 
 // Autocomplete
 +function($) {
@@ -403,24 +398,6 @@ var chain = new Chain();
 }(jQuery);
 
 $(document).ready(function() {
-    // Currency
-    $('#form-currency .dropdown-item').on('click', function(e) {
-        e.preventDefault();
-
-        $('#form-currency input[name=\'code\']').val($(this).attr('href'));
-
-        $('#form-currency').submit();
-    });
-
-    // Language
-    $('#form-language .dropdown-item').on('click', function(e) {
-        e.preventDefault();
-
-        $('#form-language input[name=\'code\']').val($(this).attr('href'));
-
-        $('#form-language').submit();
-    });
-
     // Product List
     $('#button-list').on('click', function() {
         var element = this;
@@ -455,7 +432,7 @@ $(document).ready(function() {
         $('#button-grid').addClass('active');
     }
 
-    /* Agree to Terms */
+
     $('body').on('click', '.modal-link', function(e) {
         e.preventDefault();
 
@@ -474,30 +451,5 @@ $(document).ready(function() {
         });
     });
 
-    // Cookie Policy
-    $('#cookie button').on('click', function() {
-        var element = this;
-
-        $.ajax({
-            url: $(this).val(),
-            type: 'get',
-            dataType: 'json',
-            beforeSend: function() {
-                $(element).button('loading');
-            },
-            complete: function() {
-                $(element).button('reset');
-            },
-            success: function(json) {
-                if (json['success']) {
-                    $('#cookie').fadeOut(400, function() {
-                        $('#cookie').remove();
-                    });
-                }
-            },
-            error: function(xhr, ajaxOptions, thrownError) {
-                console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-            }
-        });
-    });
 });
+

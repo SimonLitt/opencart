@@ -20,6 +20,8 @@ class Register extends \Opencart\System\Engine\Controller {
 
 		$this->document->setTitle($this->language->get('heading_title'));
 
+		$this->document->addScript('catalog/view/javascript/register.js');
+
 		$data['breadcrumbs'] = [];
 
 		$data['breadcrumbs'][] = [
@@ -42,13 +44,13 @@ class Register extends \Opencart\System\Engine\Controller {
 		$data['error_upload_size'] = sprintf($this->language->get('error_upload_size'), $this->config->get('config_file_max_size'));
 
 		$data['config_file_max_size'] = ((int)$this->config->get('config_file_max_size') * 1024 * 1024);
-		$data['config_telephone_display'] = $this->config->get('config_telephone_display');
+		$data['config_telephone_status'] = $this->config->get('config_telephone_status');
 		$data['config_telephone_required'] = $this->config->get('config_telephone_required');
 
 		// Create form token
 		$this->session->data['register_token'] = oc_token(26);
 
-		$data['register'] = $this->url->link('account/register.register', 'language=' . $this->config->get('config_language') . '&register_token=' . $this->session->data['register_token']);
+		$data['save'] = $this->url->link('account/register.save', 'language=' . $this->config->get('config_language') . '&register_token=' . $this->session->data['register_token']);
 
 		$this->session->data['upload_token'] = oc_token(32);
 
@@ -57,13 +59,13 @@ class Register extends \Opencart\System\Engine\Controller {
 		// Customer Groups
 		$data['customer_groups'] = [];
 
-		if (is_array($this->config->get('config_customer_group_display'))) {
+		if (is_array($this->config->get('config_customer_group_list'))) {
 			$this->load->model('account/customer_group');
 
 			$customer_groups = $this->model_account_customer_group->getCustomerGroups();
 
 			foreach ($customer_groups as $customer_group) {
-				if (in_array($customer_group['customer_group_id'], (array)$this->config->get('config_customer_group_display'))) {
+				if (in_array($customer_group['customer_group_id'], (array)$this->config->get('config_customer_group_list'))) {
 					$data['customer_groups'][] = $customer_group;
 				}
 			}
@@ -123,7 +125,7 @@ class Register extends \Opencart\System\Engine\Controller {
 	 *
 	 * @return void
 	 */
-	public function register(): void {
+	public function save(): void {
 		$this->load->language('account/register');
 
 		$json = [];
@@ -170,7 +172,7 @@ class Register extends \Opencart\System\Engine\Controller {
 
 			$customer_group_info = $this->model_account_customer_group->getCustomerGroup($customer_group_id);
 
-			if (!$customer_group_info || !in_array($customer_group_id, (array)$this->config->get('config_customer_group_display'))) {
+			if (!$customer_group_info || !in_array($customer_group_id, (array)$this->config->get('config_customer_group_list'))) {
 				$json['error']['warning'] = $this->language->get('error_customer_group');
 			}
 

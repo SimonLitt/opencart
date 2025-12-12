@@ -36,31 +36,16 @@ class Information extends \Opencart\System\Engine\Controller {
 			$filter_status = '';
 		}
 
-		$url = '';
+		$allowed = [
+			'filter_store_id',
+			'filter_language_id',
+			'filter_status',
+			'sort',
+			'order',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_store_id'])) {
-			$url .= '&filter_store_id=' . (int)$this->request->get['filter_store_id'];
-		}
-
-		if (isset($this->request->get['filter_language_id'])) {
-			$url .= '&filter_language_id=' . (int)$this->request->get['filter_language_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['breadcrumbs'] = [];
 
@@ -142,7 +127,7 @@ class Information extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['sort'])) {
 			$sort = (string)$this->request->get['sort'];
 		} else {
-			$sort = 'id.title';
+			$sort = 'title';
 		}
 
 		if (isset($this->request->get['order'])) {
@@ -157,31 +142,16 @@ class Information extends \Opencart\System\Engine\Controller {
 			$page = 1;
 		}
 
-		$url = '';
+		$allowed = [
+			'filter_store_id',
+			'filter_language_id',
+			'filter_status',
+			'sort',
+			'order',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_store_id'])) {
-			$url .= '&filter_store_id=' . (int)$this->request->get['filter_store_id'];
-		}
-
-		if (isset($this->request->get['filter_language_id'])) {
-			$url .= '&filter_language_id=' . (int)$this->request->get['filter_language_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['action'] = $this->url->link('catalog/information.list', 'user_token=' . $this->session->data['user_token'] . $url);
 
@@ -206,7 +176,13 @@ class Information extends \Opencart\System\Engine\Controller {
 			$data['informations'][] = ['edit' => $this->url->link('catalog/information.form', 'user_token=' . $this->session->data['user_token'] . '&information_id=' . $result['information_id'] . $url)] + $result;
 		}
 
-		$url = '';
+		$allowed = [
+			'filter_store_id',
+			'filter_language_id',
+			'filter_status'
+		];
+
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		if ($order == 'ASC') {
 			$url .= '&order=DESC';
@@ -215,30 +191,28 @@ class Information extends \Opencart\System\Engine\Controller {
 		}
 
 		// Sorts
-		$data['sort_title'] = $this->url->link('catalog/information.list', 'user_token=' . $this->session->data['user_token'] . '&sort=id.title' . $url);
-		$data['sort_sort_order'] = $this->url->link('catalog/information.list', 'user_token=' . $this->session->data['user_token'] . '&sort=i.sort_order' . $url);
-		$data['sort_status'] = $this->url->link('catalog/information.list', 'user_token=' . $this->session->data['user_token'] . '&sort=i.status' . $url);
+		$data['sort_title'] = $this->url->link('catalog/information.list', 'user_token=' . $this->session->data['user_token'] . '&sort=title' . $url);
+		$data['sort_sort_order'] = $this->url->link('catalog/information.list', 'user_token=' . $this->session->data['user_token'] . '&sort=sort_order' . $url);
+		$data['sort_status'] = $this->url->link('catalog/information.list', 'user_token=' . $this->session->data['user_token'] . '&sort=status' . $url);
 
-		$url = '';
+		$allowed = [
+			'filter_store_id',
+			'filter_language_id',
+			'filter_status',
+			'sort',
+			'order'
+		];
 
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		// Total Information
-		$information_total = $this->model_catalog_information->getTotalInformations();
+		$information_total = $this->model_catalog_information->getTotalInformations($filter_data);
 
 		// Pagination
-		$data['pagination'] = $this->load->controller('common/pagination', [
-			'total' => $information_total,
-			'page'  => $page,
-			'limit' => $this->config->get('config_pagination_admin'),
-			'url'   => $this->url->link('catalog/information.list', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}')
-		]);
+		$data['total'] = $information_total;
+		$data['page'] = $page;
+		$data['limit'] = $this->config->get('config_pagination_admin');
+		$data['pagination'] = $this->url->link('catalog/information.list', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}');
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($information_total) ? (($page - 1) * $this->config->get('config_pagination_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_pagination_admin')) > ($information_total - $this->config->get('config_pagination_admin'))) ? $information_total : ((($page - 1) * $this->config->get('config_pagination_admin')) + $this->config->get('config_pagination_admin')), $information_total, ceil($information_total / $this->config->get('config_pagination_admin')));
 
@@ -263,31 +237,16 @@ class Information extends \Opencart\System\Engine\Controller {
 
 		$data['text_form'] = !isset($this->request->get['information_id']) ? $this->language->get('text_add') : $this->language->get('text_edit');
 
-		$url = '';
+		$allowed = [
+			'filter_store_id',
+			'filter_language_id',
+			'filter_status',
+			'sort',
+			'order',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_store_id'])) {
-			$url .= '&filter_store_id=' . (int)$this->request->get['filter_store_id'];
-		}
-
-		if (isset($this->request->get['filter_language_id'])) {
-			$url .= '&filter_language_id=' . (int)$this->request->get['filter_language_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['breadcrumbs'] = [];
 

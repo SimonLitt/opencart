@@ -1,7 +1,7 @@
 <?php
 namespace Opencart\Admin\Controller\Task\Catalog;
 /**
- * Class Translation
+ * Class Template
  *
  * @package Opencart\Admin\Controller\Task\Catalog
  */
@@ -9,7 +9,9 @@ class Template extends \Opencart\System\Engine\Controller {
 	/**
 	 * Index
 	 *
-	 * Generates the translation list.
+	 * Generate the template list.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -88,6 +90,10 @@ class Template extends \Opencart\System\Engine\Controller {
 	/*
 	 * Write
 	 *
+	 * Write template file.
+	 *
+	 * @param array<string, string> $args
+	 *
 	 * @return array
 	 */
 	public function write(array $args = []): array {
@@ -154,8 +160,8 @@ class Template extends \Opencart\System\Engine\Controller {
 
 		$pos = strrpos($args['route'], '/');
 
-		$base = DIR_OPENCART . 'shop/';
-		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/data/language/'  .  substr($args['route'], 0, $pos) . '/';
+		$base = DIR_CATALOG . 'view/data/';
+		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/language/'  .  substr($args['route'], 0, $pos) . '/';
 		$filename = substr($args['route'], $pos + 1) . '.json';
 
 		if (!oc_directory_create($base . $directory, 0777)) {
@@ -172,7 +178,9 @@ class Template extends \Opencart\System\Engine\Controller {
 	/**
 	 * Clear
 	 *
-	 * Clears generated translation files.
+	 * Delete generated template files.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -189,7 +197,7 @@ class Template extends \Opencart\System\Engine\Controller {
 
 		foreach ($stores as $store) {
 			foreach ($languages as $language) {
-				$directories = oc_directory_read(DIR_OPENCART . 'shop/' . parse_url($store['url'], PHP_URL_HOST) . '/' . $language['code'] . '/data/language/', false);
+				$directories = oc_directory_read(DIR_CATALOG . 'view/data/' . parse_url($store['url'], PHP_URL_HOST) . '/' . $language['code'] . '/language/', false);
 
 				foreach ($directories as $directory) {
 					oc_directory_delete($directory);

@@ -840,6 +840,11 @@ class Product extends \Opencart\System\Engine\Model {
 				}
 			}
 
+			// Codes
+			if (isset($override['product_code'])) {
+				$product_data['product_code'] = $this->model_catalog_product->getCodes($product['product_id']);
+			}
+			
 			// Attributes
 			if (isset($override['product_attribute'])) {
 				$product_data['product_attribute'] = $this->model_catalog_product->getAttributes($product['product_id']);
@@ -1126,16 +1131,16 @@ class Product extends \Opencart\System\Engine\Model {
 		$sql .= " GROUP BY `p`.`product_id`";
 
 		$sort_data = [
-			'pd.name',
-			'p.model',
-			'p.price',
-			'p.quantity',
-			'p.sort_order',
-			'p.status'
+			'name'       => 'pd.name',
+			'model'      => 'p.model',
+			'price'      => 'p.price',
+			'quantity'   => 'p.quantity',
+			'status'     => 'p.status',
+			'sort_order' => 'p.sort_order'
 		];
 
-		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
-			$sql .= " ORDER BY " . $data['sort'];
+		if (isset($data['sort']) && array_key_exists($data['sort'], $sort_data)) {
+			$sql .= " ORDER BY " . $sort_data[$data['sort']];
 		} else {
 			$sql .= " ORDER BY `pd`.`name`";
 		}

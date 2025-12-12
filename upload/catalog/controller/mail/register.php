@@ -84,8 +84,6 @@ class Register extends \Opencart\System\Engine\Controller {
 			return;
 		}
 
-
-
 		$this->load->language('mail/register');
 
 		$store_name = html_entity_decode($this->config->get('config_name'), ENT_QUOTES, 'UTF-8');
@@ -126,7 +124,11 @@ class Register extends \Opencart\System\Engine\Controller {
 		$tos = explode(',', (string)$this->config->get('config_mail_alert_email'));
 
 		foreach ($tos as $to) {
-			$emails[] = trim($to);
+			$to = trim($to);
+
+			if (oc_validate_email($to)) {
+				$emails[] = $to;
+			}
 		}
 
 		$this->load->model('setting/task');

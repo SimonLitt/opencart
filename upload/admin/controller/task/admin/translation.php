@@ -1,6 +1,5 @@
 <?php
 namespace Opencart\Admin\Controller\Task\Admin;
-
 /**
  * Class Translation
  *
@@ -10,17 +9,31 @@ class Translation extends \Opencart\System\Engine\Controller {
 	/**
 	 * Index
 	 *
-	 * Generates the translation list.
+	 * Generate translation task list.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
 	public function index(array $args = []): array {
 		$this->load->language('task/admin/translation');
 
+		// Clear old data
+		$task_data = [
+			'code'   => 'translation',
+			'action' => 'task/admin/translation.clear',
+			'args'   => []
+		];
+
+		$this->load->model('setting/task');
+
+		$this->model_setting_task->addTask($task_data);
+
+		// Generate new data
 		$ignore = [
 			'api',
 			'mail',
-			'ssr'
+			'task'
 		];
 
 		$this->load->model('localisation/language');
@@ -78,11 +91,15 @@ class Translation extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		return ['success' => $this->language->get('text_success')];
+		return ['success' => $this->language->get('text_task')];
 	}
 
 	/**
 	 * Write
+	 *
+	 * Writes the translation files.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -126,8 +143,8 @@ class Translation extends \Opencart\System\Engine\Controller {
 
 		$pos = strrpos($args['route'], '/');
 
-		$base = DIR_APPLICATION . 'view/data/';
-		$directory = $language_info['code'] . '/language/'  .  substr($args['route'], 0, $pos) . '/';
+		$base = DIR_APPLICATION . 'view/language/';
+		$directory = $language_info['code'] . '/'  .  substr($args['route'], 0, $pos) . '/';
 		$filename = substr($args['route'], $pos + 1) . '.json';
 
 		if (!oc_directory_create($base . $directory, 0777)) {
@@ -144,7 +161,9 @@ class Translation extends \Opencart\System\Engine\Controller {
 	/**
 	 * Clear
 	 *
-	 * Clears generated translation files.
+	 * Deletes generated translation data.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -156,7 +175,7 @@ class Translation extends \Opencart\System\Engine\Controller {
 		$languages = $this->model_localisation_language->getLanguages();
 
 		foreach ($languages as $language) {
-			$directories = oc_directory_read(DIR_APPLICATION . 'view/data/' . $language['code'] . '/language/', false);
+			$directories = oc_directory_read(DIR_APPLICATION . 'view/language/' . $language['code'] . '/', false);
 
 			foreach ($directories as $directory) {
 				oc_directory_delete($directory);

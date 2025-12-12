@@ -1,6 +1,5 @@
 <?php
 namespace Opencart\Catalog\Controller\Startup;
-use Opencart\System\Engine\Action;
 /**
  * Class Language
  *
@@ -17,7 +16,7 @@ class Language extends \Opencart\System\Engine\Controller {
 	 *
 	 * @return ?\Opencart\System\Engine\Action
 	 */
-	public function index() {
+	public function index(): void {
 		// Languages
 		$this->load->model('localisation/language');
 
@@ -25,34 +24,34 @@ class Language extends \Opencart\System\Engine\Controller {
 
 		$code = '';
 
-		// Set default language
-		if (!isset($this->request->get['route']) && !isset($this->request->get['language'])) {
-			$code = $this->config->get('config_language_catalog');
-		}
-
-		// If GET has language var
-		if (isset($this->request->get['language']) && isset(self::$languages[$this->request->get['language']])) {
+		if (isset($this->request->get['language'])) {
 			$code = $this->request->get['language'];
 		}
 
-		if ($code) {
-			// If extension switch add language directory
-			if (self::$languages[$code]['extension']) {
-				$this->language->addPath('extension/' . self::$languages[$code]['extension'], DIR_EXTENSION . self::$languages[$code]['extension'] . '/catalog/language/');
-			}
-
-			// Set the config language_id key
-			$this->config->set('config_language_id', self::$languages[$code]['language_id']);
-			$this->config->set('config_language', self::$languages[$code]['code']);
-
-			$this->load->language('default');
-		} else {
-			$this->config->set('config_language', $this->config->get('language_code'));
-
-			$this->request->get['route'] = 'error/not_found';
+		// If SEO URL then the first path has to be language code
+		if (isset($this->request->get['_route_']) && preg_match('/^([a-z]{2}-[a-z]{2})/', $this->request->get['_route_'], $matches)) {
+			$code = $matches[0];
 		}
 
-		return null;
+		if (!$code) {
+			$code = $this->config->get('config_language_catalog');
+		}
+
+		// Use default language if on homepage and no language code set
+		if (!isset(self::$languages[$code])) {
+			$code = $this->config->get('config_language_catalog');
+		}
+
+		// If extension switch add language directory
+		if (self::$languages[$code]['extension']) {
+			$this->language->addPath('extension/' . self::$languages[$code]['extension'], DIR_EXTENSION . self::$languages[$code]['extension'] . '/catalog/language/');
+		}
+
+		// Set the config language_id key
+		$this->config->set('config_language_id', self::$languages[$code]['language_id']);
+		$this->config->set('config_language', self::$languages[$code]['code']);
+
+		$this->load->language('default');
 	}
 
 	/**

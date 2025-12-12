@@ -51,7 +51,7 @@ class Topic extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['order'])) {
 			$order = (string)$this->request->get['order'];
 		} else {
-			$order = 'DESC';
+			$order = 'desc';
 		}
 
 		if (isset($this->request->get['page'])) {
@@ -87,6 +87,8 @@ class Topic extends \Opencart\System\Engine\Controller {
 		];
 
 		$this->document->setTitle($this->language->get('heading_title'));
+
+		$this->document->addScript('catalog/view/javascript/topic.js');
 
 		$data['heading_title'] = $this->language->get('heading_title');
 
@@ -228,7 +230,7 @@ class Topic extends \Opencart\System\Engine\Controller {
 			'total' => $article_total,
 			'page'  => $page,
 			'limit' => $limit,
-			'url'   => $this->url->link('cms/topic', 'language=' . $this->config->get('config_language') . $url . '&page={page}')
+			'url'   => $this->url->link('cms/topic', 'language=' . $this->config->get('config_language') . $url . '&page=' . $page)
 		]);
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($article_total) ? (($page - 1) * $limit) + 1 : 0, ((($page - 1) * $limit) > ($article_total - $limit)) ? $article_total : ((($page - 1) * $limit) + $limit), $article_total, ceil($article_total / $limit));
@@ -266,8 +268,8 @@ class Topic extends \Opencart\System\Engine\Controller {
 
 		$data['sorts'][] = [
 			'text'  => $this->language->get('text_date_added_desc'),
-			'value' => 'date_added-DESC',
-			'href'  => $this->url->link('cms/topic', 'language=' . $this->config->get('config_language') . '&sort=date_added&order=DESC' . $url)
+			'value' => 'date_added-desc',
+			'href'  => $this->url->link('cms/topic', 'language=' . $this->config->get('config_language') . '&sort=date_added&order=desc' . $url)
 		];
 
 		$data['sorts'][] = [
@@ -278,8 +280,8 @@ class Topic extends \Opencart\System\Engine\Controller {
 
 		$data['sorts'][] = [
 			'text'  => $this->language->get('text_rating_desc'),
-			'value' => 'rating-DESC',
-			'href'  => $this->url->link('cms/topic', 'language=' . $this->config->get('config_language') . '&sort=rating&order=DESC' . $url)
+			'value' => 'rating-desc',
+			'href'  => $this->url->link('cms/topic', 'language=' . $this->config->get('config_language') . '&sort=rating&order=desc' . $url)
 		];
 
 		$data['sort'] = $sort;

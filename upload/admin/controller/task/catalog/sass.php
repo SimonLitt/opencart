@@ -1,79 +1,50 @@
 <?php
 namespace Opencart\Admin\Controller\Task\Catalog;
 /**
- * Class Sass
+ * Class SASS
+ *
+ * Can be loaded using $this->load->controller('task/catalog/sass');
  *
  * @package Opencart\Admin\Controller\Task\Catalog
  */
 class Sass extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
+	 * SASS Admin
 	 *
-	 * @throws \Exception\ScssPhp\ScssPhp\Exception\SassException
+	 * Generate admin SASS file.
 	 *
 	 * @return array
 	 */
 	public function index(array $args = []): array {
 		$this->load->language('task/catalog/sass');
 
-		$file = DIR_CATALOG . 'view/stylesheet/stylesheet.scss';
+		// Before we delete we need to make sure there is a sass file to regenerate the css
+		$file = DIR_CATALOG . 'view/sass/stylesheet.scss';
 
 		if (!is_file($file)) {
-			return ['error' => $this->language->get('error_file')];
+			return ['error' => sprintf($this->language->get('error_file'), $file)];
 		}
 
 		$filename = basename($file, '.scss');
+		$directory = dirname($file) . '/';
 
-		$stylesheet = dirname($file) . '/' . $filename . '.css';
+		$stylesheet = DIR_CATALOG . 'view/stylesheet/' . $filename . '.css';
+
+		if (is_file($stylesheet)) {
+			unlink($stylesheet);
+		}
 
 		$scss = new \ScssPhp\ScssPhp\Compiler();
-		$scss->setImportPaths(DIR_CATALOG . 'view/stylesheet/');
+		$scss->setImportPaths($directory);
 
 		$output = $scss->compileString('@import "' . $filename . '.scss"')->getCss();
 
 		$handle = fopen($stylesheet, 'w');
 
-		flock($handle, LOCK_EX);
-
 		fwrite($handle, $output);
-
-		fflush($handle);
-
-		flock($handle, LOCK_UN);
 
 		fclose($handle);
 
 		return ['success' => $this->language->get('text_success')];
-	}
-
-	/**
-	 * Clear
-	 *
-	 * Clears generated sass files.
-	 *
-	 * @return array
-	 */
-	public function clear(array $args = []): array {
-		$this->load->language('task/catalog/sass');
-
-		$this->load->model('setting/store');
-
-		$stores = $this->model_setting_store->getStores();
-
-		$this->load->model('localisation/language');
-
-		$languages = $this->model_localisation_language->getLanguages();
-
-		foreach ($stores as $store) {
-			foreach ($languages as $language) {
-				$file = DIR_OPENCART . 'shop/' . parse_url($store['url'], PHP_URL_HOST) . '/' . $language['code'] . '/localisation/data/sass.css';
-
-				if (is_file($file)) {
-					unlink($file);
-				}
-			}
-		}
-
-		return ['success' => $this->language->get('text_clear')];
 	}
 }

@@ -9,7 +9,9 @@ class Store extends \Opencart\System\Engine\Controller {
 	/**
 	 * Index
 	 *
-	 * Generates store list.
+	 * Generate JSON store list file.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -25,7 +27,7 @@ class Store extends \Opencart\System\Engine\Controller {
 		$languages = $this->model_localisation_language->getLanguages();
 
 		foreach ($languages as $language) {
-			$base = DIR_CATALOG . 'view/data/';
+			$base = DIR_OPENCART . 'view/data/';
 			$directory = $language['code'] . '/setting/';
 			$filename = 'store.json';
 
@@ -44,7 +46,9 @@ class Store extends \Opencart\System\Engine\Controller {
 	/**
 	 * Clear
 	 *
-	 * Clears generated country files.
+	 * Delete generated JSON store files.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */

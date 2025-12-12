@@ -3,9 +3,9 @@
   <div class="page-header">
     <div class="container-fluid">
       <div class="float-end">
-        <button type="button" data-bs-toggle="tooltip" title="{{ button_filter }}" onclick="$('#filter-subscription').toggleClass('d-none');" class="btn btn-light d-md-none"><i class="fa-solid fa-filter"></i></button>
-        <a href="{{ add }}" data-bs-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i></a>
-        <button type="submit" form="form-subscription" formaction="{{ delete }}" data-bs-toggle="tooltip" title="{{ button_delete }}" onclick="return confirm('{{ text_confirm }}');" class="btn btn-danger"><i class="fa-regular fa-trash-can"></i></button>
+        <button type="button" title="{{ button_filter }}" onclick="$('#filter-subscription').toggleClass('d-none');" class="btn btn-light d-md-none"><i class="fa-solid fa-filter"></i></button>
+        <a href="{{ add }}" title="{{ button_add }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i></a>
+        <button type="submit" form="form-subscription" formaction="{{ delete }}" title="{{ button_delete }}" onclick="return confirm('{{ text_confirm }}');" class="btn btn-danger"><i class="fa-regular fa-trash-can"></i></button>
       </div>
       <h1>{{ heading_title }}</h1>
       <ol class="breadcrumb">
@@ -53,7 +53,7 @@
               </div>
               <div class="text-end">
                 <button type="submit" id="button-filter" class="btn btn-light"><i class="fa-solid fa-filter"></i> {{ button_filter }}</button>
-                <button type="reset" data-bs-toggle="tooltip" title="{{ button_reset }}" class="btn btn-outline-secondary"><i class="fa-solid fa-filter-circle-xmark"></i></button>
+                <button type="reset" title="{{ button_reset }}" class="btn btn-outline-secondary"><i class="fa-solid fa-filter-circle-xmark"></i></button>
               </div>
             </form>
           </div>
@@ -68,41 +68,5 @@
     </div>
   </div>
 </div>
-<script type="text/javascript"><!--
-$('#list').on('click', 'thead a, .pagination a', function(e) {
-    e.preventDefault();
-
-    $('#list').load(this.href);
-});
-
-$('#form-filter').on('submit', function(e) {
-    e.preventDefault();
-
-    let url = $(this).serialize();
-
-    window.history.pushState({}, null, 'index.php?route=sale/subscription&user_token={{ user_token }}&' + url);
-
-    $('#list').load('index.php?route=sale/subscription.list&user_token={{ user_token }}&' + url);
-});
-
-$('#input-customer').autocomplete({
-    'source': function(request, response) {
-        $.ajax({
-            url: 'index.php?route=customer/customer.autocomplete&user_token={{ user_token }}&filter_name=' + encodeURIComponent(request),
-            dataType: 'json',
-            success: function(json) {
-                response($.map(json, function(item) {
-                    return {
-                        label: item['name'],
-                        value: item['customer_id']
-                    }
-                }));
-            }
-        });
-    },
-    'select': function(item) {
-        $('#input-customer').val(decodeHTMLEntities(item['label']));
-    }
-});
-//--></script>
+<script type="text/javascript" src="view/javascript/subscription.js"></script>
 {{ footer }}

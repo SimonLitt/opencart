@@ -1492,40 +1492,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'country_to_store',
-		'field' => [
-			[
-				'name' => 'country_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name'    => 'store_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			]
-		],
-		'primary' => [
-			'country_id',
-			'store_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'country_id',
-				'table' => 'country',
-				'field' => 'country_id'
-			],
-			[
-				'key'   => 'store_id',
-				'table' => 'store',
-				'field' => 'store_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'coupon',
 		'field' => [
 			[
@@ -6710,39 +6676,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'ssr',
-		'field' => [
-			[
-				'name'           => 'ssr_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'code',
-				'type' => 'varchar(128)'
-			],
-			[
-				'name' => 'description',
-				'type' => 'text'
-			],
-			[
-				'name' => 'action',
-				'type' => 'text'
-			],
-			[
-				'name' => 'date_modified',
-				'type' => 'datetime'
-			]
-		],
-		'primary' => [
-			'ssr_id'
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'stock_status',
 		'field' => [
 			[
@@ -7378,12 +7311,12 @@ function oc_db_schema() {
 				'type' => 'text'
 			],
 			[
-				'name' => 'status',
-				'type' => 'enum(\'pending\',\'processing\',\'paused\',\'complete\',\'failed\')'
-			],
-			[
 				'name' => 'response',
 				'type' => 'text'
+			],
+			[
+				'name' => 'status',
+				'type' => 'enum(\'pending\',\'processing\',\'paused\',\'complete\',\'failed\')'
 			],
 			[
 				'name' => 'date_added',
@@ -7411,8 +7344,8 @@ function oc_db_schema() {
 				'auto_increment' => true
 			],
 			[
-				'name' => 'task_id',
-				'type' => 'int(11)'
+				'name' => 'code',
+				'type' => 'varchar(32)'
 			],
 			[
 				'name' => 'comment',
@@ -7794,6 +7727,56 @@ function oc_db_schema() {
 				'key'  => [
 					'key',
 					'value'
+				]
+			]
+		],
+		'engine'  => 'InnoDB',
+		'charset' => 'utf8mb4',
+		'collate' => 'utf8mb4_unicode_ci'
+	];
+
+	$tables[] = [
+		'name'  => 'seo_regex',
+		'field' => [
+			[
+				'name'           => 'seo_regex_id',
+				'type'           => 'int(11)',
+				'auto_increment' => true
+			],
+			[
+				'name' => 'key',
+				'type' => 'varchar(64)'
+			],
+			[
+				'name' => 'match',
+				'type' => 'varchar(255)'
+			],
+			[
+				'name' => 'replace',
+				'type' => 'varchar(255)'
+			],
+			[
+				'name' => 'keyword',
+				'type' => 'varchar(255)'
+			],
+			[
+				'name' => 'value',
+				'type' => 'varchar(255)'
+			],
+			[
+				'name'    => 'sort_order',
+				'type'    => 'int(3)',
+				'default' => '0'
+			]
+		],
+		'primary' => [
+			'seo_regex_id'
+		],
+		'index' => [
+			[
+				'name' => 'sort_order',
+				'key'  => [
+					'sort_order'
 				]
 			]
 		],

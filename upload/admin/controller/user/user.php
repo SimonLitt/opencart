@@ -16,6 +16,8 @@ class User extends \Opencart\System\Engine\Controller {
 
 		$this->document->setTitle($this->language->get('heading_title'));
 
+		$this->document->addScript('assets/ckeditor/user.js');
+
 		if (isset($this->request->get['filter_username'])) {
 			$filter_username = (string)$this->request->get['filter_username'];
 		} else {
@@ -52,43 +54,17 @@ class User extends \Opencart\System\Engine\Controller {
 			$filter_ip = '';
 		}
 
-		$url = '';
+		$allowed = [
+			'filter_username',
+			'filter_name',
+			'filter_email',
+			'filter_user_group_id',
+			'filter_status',
+			'filter_ip',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_username'])) {
-			$url .= '&filter_username=' . urlencode(html_entity_decode($this->request->get['filter_username'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_email'])) {
-			$url .= '&filter_email=' . urlencode(html_entity_decode($this->request->get['filter_email'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_user_group_id'])) {
-			$url .= '&filter_user_group_id=' . $this->request->get['filter_user_group_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['filter_ip'])) {
-			$url .= '&filter_ip=' . $this->request->get['filter_ip'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['breadcrumbs'] = [];
 
@@ -183,61 +159,23 @@ class User extends \Opencart\System\Engine\Controller {
 			$filter_ip = '';
 		}
 
-		if (isset($this->request->get['sort'])) {
-			$sort = (string)$this->request->get['sort'];
-		} else {
-			$sort = 'username';
-		}
-
-		if (isset($this->request->get['order'])) {
-			$order = (string)$this->request->get['order'];
-		} else {
-			$order = 'ASC';
-		}
-
 		if (isset($this->request->get['page'])) {
 			$page = (int)$this->request->get['page'];
 		} else {
 			$page = 1;
 		}
 
-		$url = '';
+		$allowed = [
+			'filter_username',
+			'filter_name',
+			'filter_email',
+			'filter_user_group_id',
+			'filter_status',
+			'filter_ip',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_username'])) {
-			$url .= '&filter_username=' . urlencode(html_entity_decode($this->request->get['filter_username'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_email'])) {
-			$url .= '&filter_email=' . urlencode(html_entity_decode($this->request->get['filter_email'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_user_group_id'])) {
-			$url .= '&filter_user_group_id=' . $this->request->get['filter_user_group_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['filter_ip'])) {
-			$url .= '&filter_ip=' . $this->request->get['filter_ip'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['action'] = $this->url->link('user/user.list', 'user_token=' . $this->session->data['user_token'] . $url);
 
@@ -251,8 +189,6 @@ class User extends \Opencart\System\Engine\Controller {
 			'filter_user_group_id' => $filter_user_group_id,
 			'filter_status'        => $filter_status,
 			'filter_ip'            => $filter_ip,
-			'sort'                 => $sort,
-			'order'                => $order,
 			'start'                => ($page - 1) * $this->config->get('config_pagination_admin'),
 			'limit'                => $this->config->get('config_pagination_admin')
 		];
@@ -262,101 +198,19 @@ class User extends \Opencart\System\Engine\Controller {
 		$results = $this->model_user_user->getUsers($filter_data);
 
 		foreach ($results as $result) {
-			$data['users'][] = [
-				'date_added' => date($this->language->get('date_format_short'), strtotime($result['date_added'])),
-				'edit'       => $this->url->link('user/user.form', 'user_token=' . $this->session->data['user_token'] . '&user_id=' . $result['user_id'] . $url)
-			] + $result;
-		}
-
-		$url = '';
-
-		if (isset($this->request->get['filter_username'])) {
-			$url .= '&filter_username=' . urlencode(html_entity_decode($this->request->get['filter_username'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_email'])) {
-			$url .= '&filter_email=' . urlencode(html_entity_decode($this->request->get['filter_email'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_user_group_id'])) {
-			$url .= '&filter_user_group_id=' . $this->request->get['filter_user_group_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['filter_ip'])) {
-			$url .= '&filter_ip=' . $this->request->get['filter_ip'];
-		}
-
-		if ($order == 'ASC') {
-			$url .= '&order=DESC';
-		} else {
-			$url .= '&order=ASC';
-		}
-
-		// Sorts
-		$data['sort_username'] = $this->url->link('user/user.list', 'user_token=' . $this->session->data['user_token'] . '&sort=username' . $url);
-		$data['sort_name'] = $this->url->link('user/user.list', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url);
-		$data['sort_email'] = $this->url->link('user/user.list', 'user_token=' . $this->session->data['user_token'] . '&sort=u.email' . $url);
-		$data['sort_user_group'] = $this->url->link('user/user.list', 'user_token=' . $this->session->data['user_token'] . '&sort=user_group' . $url);
-		$data['sort_status'] = $this->url->link('user/user.list', 'user_token=' . $this->session->data['user_token'] . '&sort=u.status' . $url);
-		$data['sort_date_added'] = $this->url->link('user/user.list', 'user_token=' . $this->session->data['user_token'] . '&sort=u.date_added' . $url);
-
-		$url = '';
-
-		if (isset($this->request->get['filter_username'])) {
-			$url .= '&filter_username=' . urlencode(html_entity_decode($this->request->get['filter_username'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_email'])) {
-			$url .= '&filter_email=' . urlencode(html_entity_decode($this->request->get['filter_email'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_user_group_id'])) {
-			$url .= '&filter_user_group_id=' . $this->request->get['filter_user_group_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['filter_ip'])) {
-			$url .= '&filter_ip=' . $this->request->get['filter_ip'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
+			$data['users'][] = ['edit' => $this->url->link('user/user.form', 'user_token=' . $this->session->data['user_token'] . '&user_id=' . $result['user_id'] . $url)] + $result;
 		}
 
 		// Total Users
 		$user_total = $this->model_user_user->getTotalUsers();
 
 		// Pagination
-		$data['pagination'] = $this->load->controller('common/pagination', [
-			'total' => $user_total,
-			'page'  => $page,
-			'limit' => $this->config->get('config_pagination_admin'),
-			'url'   => $this->url->link('user/user.list', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}')
-		]);
+		$data['total'] = $user_total;
+		$data['page'] = $page;
+		$data['limit'] = $this->config->get('config_pagination_admin');
+		$data['pagination'] = $this->url->link('user/user.list', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}');
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($user_total) ? (($page - 1) * $this->config->get('config_pagination_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_pagination_admin')) > ($user_total - $this->config->get('config_pagination_admin'))) ? $user_total : ((($page - 1) * $this->config->get('config_pagination_admin')) + $this->config->get('config_pagination_admin')), $user_total, ceil($user_total / $this->config->get('config_pagination_admin')));
-
-		$data['sort'] = $sort;
-		$data['order'] = $order;
 
 		return $this->load->view('user/user_list', $data);
 	}
@@ -371,45 +225,21 @@ class User extends \Opencart\System\Engine\Controller {
 
 		$this->document->setTitle($this->language->get('heading_title'));
 
+		$this->document->addScript('assets/ckeditor/user.js');
+
 		$data['text_form'] = !isset($this->request->get['user_id']) ? $this->language->get('text_add') : $this->language->get('text_edit');
 
-		$url = '';
+		$allowed = [
+			'filter_username',
+			'filter_name',
+			'filter_email',
+			'filter_user_group_id',
+			'filter_status',
+			'filter_ip',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_username'])) {
-			$url .= '&filter_username=' . urlencode(html_entity_decode($this->request->get['filter_username'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_email'])) {
-			$url .= '&filter_email=' . urlencode(html_entity_decode($this->request->get['filter_email'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_user_group_id'])) {
-			$url .= '&filter_user_group_id=' . $this->request->get['filter_user_group_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['filter_ip'])) {
-			$url .= '&filter_ip=' . $this->request->get['filter_ip'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['breadcrumbs'] = [];
 
@@ -773,12 +603,10 @@ class User extends \Opencart\System\Engine\Controller {
 		$authorize_total = $this->model_user_user->getTotalAuthorizes($user_id);
 
 		// Pagination
-		$data['pagination'] = $this->load->controller('common/pagination', [
-			'total' => $authorize_total,
-			'page'  => $page,
-			'limit' => $limit,
-			'url'   => $this->url->link('user/user.authorize', 'user_token=' . $this->session->data['user_token'] . '&user_id=' . $user_id . '&page={page}')
-		]);
+		$data['total'] = $authorize_total;
+		$data['page'] = $page;
+		$data['limit'] = $this->config->get('config_pagination_admin');
+		$data['pagination'] = $this->url->link('user/user.authorize', 'user_token=' . $this->session->data['user_token'] . '&user_id=' . $user_id . '&page={page}');
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($authorize_total) ? (($page - 1) * $limit) + 1 : 0, ((($page - 1) * $limit) > ($authorize_total - $limit)) ? $authorize_total : ((($page - 1) * $limit) + $limit), $authorize_total, ceil($authorize_total / $limit));
 
@@ -883,12 +711,10 @@ class User extends \Opencart\System\Engine\Controller {
 		$login_total = $this->model_user_user->getTotalLogins($user_id);
 
 		// Pagination
-		$data['pagination'] = $this->load->controller('common/pagination', [
-			'total' => $login_total,
-			'page'  => $page,
-			'limit' => $limit,
-			'url'   => $this->url->link('user/user.login', 'user_token=' . $this->session->data['user_token'] . '&user_id=' . $user_id . '&page={page}')
-		]);
+		$data['total'] = $login_total;
+		$data['page'] = $page;
+		$data['limit'] = $limit;
+		$data['pagination'] = $this->url->link('user/user.login', 'user_token=' . $this->session->data['user_token'] . '&user_id=' . $user_id . '&page={page}');
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($login_total) ? (($page - 1) * $limit) + 1 : 0, ((($page - 1) * $limit) > ($login_total - $limit)) ? $login_total : ((($page - 1) * $limit) + $limit), $login_total, ceil($login_total / $limit));
 

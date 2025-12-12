@@ -44,7 +44,7 @@
     </table>
   </div>
   <div class="row">
-    <div class="col-sm-6 text-start">{{ pagination }}</div>
+    <div class="col-sm-6 text-start"><x-pagination href="{{ pagination }}" target="#list" page="{{ page }}" limit="{{ limit }}" total="{{ total }}"></x-pagination></div>
     <div class="col-sm-6 text-end">{{ results }}</div>
   </div>
 </form>
@@ -65,21 +65,9 @@
             <label for="input-args-{{ task.task_id }}" class="form-label">{{ entry_args }}</label>
             <textarea rows="5" id="input-args-{{ task.task_id }}" class="form-control" readonly>{{ task.args }}</textarea>
           </div>
-          <div>
+          <div class="mb-3">
             <label for="input-response-{{ task.task_id }}" class="form-label">{{ entry_response }}</label>
-            <textarea rows="5" id="input-response-{{ task.task_id }}" class="form-control" readonly>
-                {{ response }}
-
-              {% for response in task.response %}
-
-                 {% if response %}
-
-                 {% else %}
-
-                 {% endif %}
-
-               {% endfor %}
-            </textarea>
+            <textarea rows="5" id="input-response-{{ task.response }}" class="form-control" readonly>{{ task.response }}</textarea>
           </div>
         </div>
       </div>

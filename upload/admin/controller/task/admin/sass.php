@@ -1,67 +1,50 @@
 <?php
 namespace Opencart\Admin\Controller\Task\Admin;
 /**
- * Class Sass
+ * Class SASS
+ *
+ * Can be loaded using $this->load->controller('task/admin/sass');
  *
  * @package Opencart\Admin\Controller\Task\Admin
  */
 class Sass extends \Opencart\System\Engine\Controller {
 	/**
-	 * Index
+	 * SASS Admin
 	 *
-	 * @throws \Exception\ScssPhp\ScssPhp\Exception\SassException
+	 * Generate admin SASS file.
 	 *
-	 * @return array
+	 * @return void
 	 */
 	public function index(array $args = []): array {
 		$this->load->language('task/admin/sass');
 
-		$file = DIR_APPLICATION . 'view/stylesheet/stylesheet.scss';
+		// Before we delete we need to make sure there is a sass file to regenerate the css
+		$file = DIR_APPLICATION . 'view/sass/stylesheet.scss';
 
 		if (!is_file($file)) {
-			return ['error' => $this->language->get('error_file')];
+			return ['error' => sprintf($this->language->get('error_file'), $file)];
 		}
 
 		$filename = basename($file, '.scss');
+		$directory = dirname($file) . '/';
 
-		$stylesheet = dirname($file) . '/' . $filename . '.css';
+		$stylesheet = DIR_APPLICATION . 'view/stylesheet/' . $filename . '.css';
+
+		if (is_file($stylesheet)) {
+			unlink($stylesheet);
+		}
 
 		$scss = new \ScssPhp\ScssPhp\Compiler();
-		$scss->setImportPaths(DIR_APPLICATION . 'view/stylesheet/');
+		$scss->setImportPaths($directory);
 
 		$output = $scss->compileString('@import "' . $filename . '.scss"')->getCss();
 
 		$handle = fopen($stylesheet, 'w');
 
-		flock($handle, LOCK_EX);
-
 		fwrite($handle, $output);
-
-		fflush($handle);
-
-		flock($handle, LOCK_UN);
 
 		fclose($handle);
 
 		return ['success' => $this->language->get('text_success')];
-	}
-
-	/**
-	 * Clear
-	 *
-	 * Clears generated sass files.
-	 *
-	 * @return array
-	 */
-	public function clear(array $args = []): array {
-		$this->load->language('task/admin/sass');
-
-		$file = DIR_APPLICATION . 'view/stylesheet/stylesheet.css';
-
-		if (is_file($file)) {
-			unlink($file);
-		}
-
-		return ['success' => $this->language->get('text_clear')];
 	}
 }

@@ -9,7 +9,9 @@ class Country extends \Opencart\System\Engine\Controller {
 	/**
 	 * Index
 	 *
-	 * Generates country task list.
+	 * Generate country task list.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -22,39 +24,39 @@ class Country extends \Opencart\System\Engine\Controller {
 
 		$stores = $this->model_setting_store->getStores();
 
-		$this->load->model('localisation/language');
-
-		$languages = $this->model_localisation_language->getLanguages();
-
 		foreach ($stores as $store) {
-			foreach ($languages as $language) {
-				$task_data = [
-					'code'   => 'country',
-					'action' => 'task/catalog/country.list',
-					'args'   => [
-						'store_id'    => $store['store_id'],
-						'language_id' => $language['language_id']
-					]
-				];
+			$setting_info = $this->model_setting_setting->getSettings('config', $store['store_id']);
 
-				$this->model_setting_task->addTask($task_data);
+			if ($setting_info) {
+				foreach ((array)$setting_info['config_language_list'] as $language_id) {
+					$task_data = [
+						'code'   => 'country',
+						'action' => 'task/catalog/country.list',
+						'args'   => [
+							'store_id'    => $store['store_id'],
+							'language_id' => $language_id
+						]
+					];
+
+					$this->model_setting_task->addTask($task_data);
+				}
 			}
 		}
 
-		return ['success' => $this->language->get('text_success')];
+		return ['success' => $this->language->get('text_task')];
 	}
 
 	/**
 	 * List
 	 *
-	 * Generates country list file.
+	 * Generate JSON country list file.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
 	public function list(array $args = []): array {
 		$this->load->language('task/catalog/country');
-
-		$this->load->model('setting/task');
 
 		// Store
 		$this->load->model('setting/store');
@@ -73,6 +75,8 @@ class Country extends \Opencart\System\Engine\Controller {
 		if (!$language_info) {
 			return ['error' => $this->language->get('error_language')];
 		}
+
+		$this->load->model('setting/task');
 
 		$filter_data = [
 			'filter_store_id'    => $store_info['store_id'],
@@ -106,8 +110,8 @@ class Country extends \Opencart\System\Engine\Controller {
 
 		array_multisort($sort_order, SORT_ASC, $countries);
 
-		$base = DIR_OPENCART . 'shop/';
-		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/data/localisation/';
+		$base = DIR_CATALOG . 'view/data/';
+		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/localisation/';
 		$filename = 'country.json';
 
 		if (!oc_directory_create($base . $directory, 0777)) {
@@ -124,7 +128,9 @@ class Country extends \Opencart\System\Engine\Controller {
 	/**
 	 * Info
 	 *
-	 * Generates country information.
+	 * Generate country information.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -168,7 +174,7 @@ class Country extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!$country_info['status']) {
-			return [];
+			return ['success' => sprintf($this->language->get('text_skip'), $store_info['name'], $language_info['name'], $country_info['name'])];
 		}
 
 		$description_info = $this->model_localisation_country->getDescription((int)$country_info['country_id'], $language_info['language_id']);
@@ -179,8 +185,8 @@ class Country extends \Opencart\System\Engine\Controller {
 
 		$stores = $this->model_localisation_country->getStores((int)$country_info['country_id']);
 
-		if (!in_array($language_info['language_id'], $stores)) {
-			return [];
+		if (!in_array($store_info['store_id'], $stores)) {
+			return ['success' => sprintf($this->language->get('text_skip'), $store_info['name'], $language_info['name'], $country_info['name'])];
 		}
 
 		$filter_data = [
@@ -189,19 +195,31 @@ class Country extends \Opencart\System\Engine\Controller {
 			'filter_status'      => 1
 		];
 
+		// Zones
 		$this->load->model('localisation/zone');
 
 		$zones = $this->model_localisation_zone->getZones($filter_data);
 
-		$base = DIR_OPENCART . 'shop/';
-		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/data/localisation/';
+		// Geo Zones
+		$geo_zone_data = [];
+
+		$this->load->model('localisation/geo_zone');
+
+		$geo_zones = $this->model_localisation_geo_zone->getZonesByCountryId($country_info['country_id']);
+
+		foreach ($geo_zones as $geo_zone) {
+			$geo_zone_data[$geo_zone['zone_id']] = $geo_zone['geo_zone_id'];
+		}
+
+		$base = DIR_CATALOG . 'view/data/';
+		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/localisation/';
 		$filename = 'country-' . $args['country_id'] . '.json';
 
 		if (!oc_directory_create($base . $directory, 0777)) {
 			return ['error' => sprintf($this->language->get('error_directory'), $directory)];
 		}
 
-		if (!file_put_contents($base . $directory . $filename, json_encode($country_info + $description_info + ['zone' => $zones]))) {
+		if (!file_put_contents($base . $directory . $filename, json_encode($country_info + $description_info + ['zone' => $zones] + ['geo_zone' => $geo_zone_data]))) {
 			return ['error' => sprintf($this->language->get('error_file'), $directory . $filename)];
 		}
 
@@ -211,7 +229,9 @@ class Country extends \Opencart\System\Engine\Controller {
 	/**
 	 * Clear
 	 *
-	 * Clears generated country files.
+	 * Delete generated JSON country files.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -228,8 +248,8 @@ class Country extends \Opencart\System\Engine\Controller {
 
 		foreach ($stores as $store) {
 			foreach ($languages as $language) {
-				$base = DIR_OPENCART . 'shop/';
-				$directory = parse_url($store['url'], PHP_URL_HOST) . '/' . $language['code'] . '/data/localisation/';
+				$base = DIR_CATALOG . 'view/data/';
+				$directory = parse_url($store['url'], PHP_URL_HOST) . '/' . $language['code'] . '/localisation/';
 
 				$file = $base . $directory . 'country.json';
 

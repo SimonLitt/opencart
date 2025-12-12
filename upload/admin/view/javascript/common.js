@@ -1,25 +1,13 @@
-function getURLVar(key) {
-    var value = [];
+import { registry, loader, config, storage, language, template, url, session, local, db, cart, tax, currency } from './opencart.js';
 
-    var query = String(document.location).split('?');
+console.log(currency.format(1.00, 'USD'));
 
-    if (query[1]) {
-        var part = query[1].split('&');
+function decodeHTMLEntities(html) {
+    var d = document.createElement('div');
 
-        for (i = 0; i < part.length; i++) {
-            var data = part[i].split('=');
+    d.innerHTML = html;
 
-            if (data[0] && data[1]) {
-                value[data[0]] = data[1];
-            }
-        }
-
-        if (value[key]) {
-            return value[key];
-        } else {
-            return '';
-        }
-    }
+    return d.textContent;
 }
 
 $(document).ready(function() {
@@ -38,16 +26,6 @@ $(document).ready(function() {
 
     $(document).on('click', 'button', function() {
         $('.tooltip').remove();
-    });
-
-    $(document).on('click', '[data-bs-toggle=\'pagination\'] a', function(e) {
-        e.preventDefault();
-
-        var element = this;
-
-        //[data-bs-target='pagination']
-
-        $(this.target).load(this.href);
     });
 
     // Alert Fade
@@ -109,14 +87,6 @@ $(document).ready(function() {
     }(jQuery);
 });
 
-function decodeHTMLEntities(html) {
-    var d = document.createElement('div');
-
-    d.innerHTML = html;
-
-    return d.textContent;
-}
-
 // Observe
 +function($) {
     $.fn.observe = function(callback) {
@@ -130,40 +100,6 @@ function decodeHTMLEntities(html) {
     };
 }(jQuery);
 
-// Chain ajax calls.
-class Chain {
-    constructor() {
-        this.start = false;
-        this.data = [];
-    }
-
-    attach(call) {
-        this.data.push(call);
-
-        if (!this.start) {
-            this.execute();
-        }
-    }
-
-    execute() {
-        if (this.data.length) {
-            this.start = true;
-
-            var call = this.data.shift();
-
-            var jqxhr = call();
-
-            jqxhr.done(function() {
-                chain.execute();
-            });
-        } else {
-            this.start = false;
-        }
-    }
-}
-
-var chain = new Chain();
-
 // Forms
 $(document).on('submit', 'form', function(e) {
     var element = this;
@@ -176,32 +112,6 @@ $(document).on('submit', 'form', function(e) {
         var action = $(button).attr('formaction') || $(form).attr('action');
         var method = $(button).attr('formmethod') || $(form).attr('method') || 'post';
         var enctype = $(button).attr('formenctype') || $(form).attr('enctype') || 'application/x-www-form-urlencoded';
-
-        console.log($(form).attr('data-oc-load'));
-
-        console.log('Element');
-        console.log(element);
-
-        console.log('Form');
-        console.log(form);
-
-        console.log('Action');
-        console.log(action);
-
-        console.log('Button');
-        console.log(button);
-
-        console.log('Method');
-        console.log(method);
-
-        console.log('Enctype');
-        console.log(enctype);
-
-        console.log('Data');
-        console.log($(element).serialize());
-
-        console.log('Event');
-        console.log(e);
 
         // https://github.com/opencart/opencart/issues/9690
         if (typeof CKEDITOR != 'undefined') {
@@ -224,7 +134,6 @@ $(document).on('submit', 'form', function(e) {
             },
             success: function(json, textStatus) {
                 console.log(json);
-                console.log(textStatus);
 
                 $('.alert-dismissible').remove();
                 $(element).find('.is-invalid').removeClass('is-invalid');
@@ -547,7 +456,7 @@ $(document).ready(function() {
         var element = this;
 
         $.ajax({
-            url: 'index.php?route=common/language.save&user_token={{ user_token }}',
+            url: 'index.php?route=common/language.save&user_token=' + getURLVar('user_token'),
             type: 'post',
             data: 'code=' + $(element).attr('href') + '&redirect=' + encodeURIComponent($('#input-redirect').val()),
             dataType: 'json',

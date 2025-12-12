@@ -7,11 +7,12 @@ $_['text_success']         = 'Success: You have modified CRON jobs!';
 $_['text_instruction']     = 'CRON Instructions';
 $_['text_list']            = 'CRON List';
 $_['text_cron_1']          = 'CRON Job\'s are scheduled tasks that are run periodically. To set up your servers to use cron job you can read the <a href="http://docs.opencart.com/extension/cron/" target="_blank" class="alert-link">opencart documentation</a> page.';
-$_['text_cron_2']          = 'You need to set your CRON task to run every hour.';
+$_['text_cron_2']          = 'You need to set your CRON task to run every minute.';
 $_['text_info']            = 'CRON Information';
 $_['text_minute']          = 'Minute';
 $_['text_hour']            = 'Hour';
 $_['text_day']             = 'Day';
+$_['text_week']            = 'Week';
 $_['text_month']           = 'Month';
 
 // Column
@@ -22,7 +23,7 @@ $_['column_date_modified'] = 'Last Run';
 $_['column_action']        = 'Action';
 
 // Entry
-$_['entry_cron']           = 'CRON Path';
+$_['entry_cron']           = 'CRON URL';
 
 // Button
 $_['button_run']           = 'Run Cron Job';

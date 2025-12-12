@@ -14,6 +14,9 @@
 /upload/catalog/view/html/*
 !/upload/catalog/view/html/index.html
 
+# Catalog HTML Files
+/upload/shop/*
+
 # Image Cache Files
 /upload/image/cache/*
 !/upload/image/cache/index.html
@@ -35,8 +38,8 @@
 !/upload/system/storage/logs/index.html
 
 # Marketplace Files
-# /upload/system/storage/marketplace/*
-# !/upload/system/storage/marketplace/index.html
+#/upload/system/storage/marketplace/*
+#!/upload/system/storage/marketplace/index.html
 
 # Session Files
 /upload/system/storage/session/*
@@ -45,9 +48,6 @@
 # Upload Files
 /upload/system/storage/upload/*
 !/upload/system/storage/upload/index.html
-
-# CSS Files
-/upload/catalog/view/stylesheet/stylesheet.css
 
 # IDE Project files
 /upload/.idea/*

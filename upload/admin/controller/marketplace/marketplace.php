@@ -64,39 +64,18 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 
 		$this->document->setTitle($this->language->get('heading_title'));
 
-		$url = '';
+		$allowed = [
+			'filter_search',
+			'filter_category',
+			'filter_license',
+			'filter_rating',
+			'filter_member_type',
+			'filter_member',
+			'sort',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_search'])) {
-			$url .= '&filter_search=' . $this->request->get['filter_search'];
-		}
-
-		if (isset($this->request->get['filter_category'])) {
-			$url .= '&filter_category=' . $this->request->get['filter_category'];
-		}
-
-		if (isset($this->request->get['filter_license'])) {
-			$url .= '&filter_license=' . $this->request->get['filter_license'];
-		}
-
-		if (isset($this->request->get['filter_rating'])) {
-			$url .= '&filter_rating=' . $this->request->get['filter_rating'];
-		}
-
-		if (isset($this->request->get['filter_member_type'])) {
-			$url .= '&filter_member_type=' . $this->request->get['filter_member_type'];
-		}
-
-		if (isset($this->request->get['filter_member'])) {
-			$url .= '&filter_member=' . $this->request->get['filter_member'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['breadcrumbs'] = [];
 
@@ -330,39 +309,18 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 		$url .= '&time=' . $time;
 		$url .= '&signature=' . rawurlencode($signature);
 
-		if (isset($this->request->get['filter_search'])) {
-			$url .= '&filter_search=' . urlencode($this->request->get['filter_search']);
-		}
+		$allowed = [
+			'filter_search',
+			'filter_category',
+			'filter_license',
+			'filter_rating',
+			'filter_member_type',
+			'filter_member',
+			'sort',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_category'])) {
-			$url .= '&filter_category=' . $this->request->get['filter_category'];
-		}
-
-		if (isset($this->request->get['filter_license'])) {
-			$url .= '&filter_license=' . $this->request->get['filter_license'];
-		}
-
-		if (isset($this->request->get['filter_rating'])) {
-			$url .= '&filter_rating=' . $this->request->get['filter_rating'];
-		}
-
-		if (isset($this->request->get['filter_member_type'])) {
-			$url .= '&filter_member_type=' . $this->request->get['filter_member_type'];
-		}
-
-		if (isset($this->request->get['filter_member'])) {
-			$url .= '&filter_member=' . urlencode($this->request->get['filter_member']);
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
-
-		$curl = curl_init(OPENCART_SERVER . 'index.php?route=api/marketplace' . $url);
+		$curl = curl_init(OPENCART_SERVER . 'index.php?route=api/marketplace' . $url . '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed))));
 
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
@@ -373,8 +331,6 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 		$response = curl_exec($curl);
 
 		$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-		curl_close($curl);
 
 		if ($status == 200) {
 			$response_info = json_decode($response, true);
@@ -388,39 +344,7 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 			$extension_total = 0;
 		}
 
-		$url = '';
-
-		if (isset($this->request->get['filter_search'])) {
-			$url .= '&filter_search=' . $this->request->get['filter_search'];
-		}
-
-		if (isset($this->request->get['filter_category'])) {
-			$url .= '&filter_category=' . $this->request->get['filter_category'];
-		}
-
-		if (isset($this->request->get['filter_license'])) {
-			$url .= '&filter_license=' . $this->request->get['filter_license'];
-		}
-
-		if (isset($this->request->get['filter_rating'])) {
-			$url .= '&filter_rating=' . $this->request->get['filter_rating'];
-		}
-
-		if (isset($this->request->get['filter_member_type'])) {
-			$url .= '&filter_member_type=' . $this->request->get['filter_member_type'];
-		}
-
-		if (isset($this->request->get['filter_member'])) {
-			$url .= '&filter_member=' . $this->request->get['filter_member'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['promotions'] = [];
 
@@ -439,42 +363,22 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 		}
 
 		// Pagination
-		$url = '';
+		$allowed = [
+			'filter_search',
+			'filter_category',
+			'filter_license',
+			'filter_rating',
+			'filter_member_type',
+			'filter_member',
+			'sort'
+		];
 
-		if (isset($this->request->get['filter_search'])) {
-			$url .= '&filter_search=' . $this->request->get['filter_search'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
-		if (isset($this->request->get['filter_category'])) {
-			$url .= '&filter_category=' . $this->request->get['filter_category'];
-		}
-
-		if (isset($this->request->get['filter_license'])) {
-			$url .= '&filter_license=' . $this->request->get['filter_license'];
-		}
-
-		if (isset($this->request->get['filter_rating'])) {
-			$url .= '&filter_rating=' . $this->request->get['filter_rating'];
-		}
-
-		if (isset($this->request->get['filter_member_type'])) {
-			$url .= '&filter_member_type=' . $this->request->get['filter_member_type'];
-		}
-
-		if (isset($this->request->get['filter_member'])) {
-			$url .= '&filter_member=' . $this->request->get['filter_member'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		$data['pagination'] = $this->load->controller('common/pagination', [
-			'total' => $extension_total,
-			'page'  => $page,
-			'limit' => 12,
-			'url'   => $this->url->link('marketplace/marketplace.list', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}')
-		]);
+		$data['total'] = $extension_total;
+		$data['page'] = $page;
+		$data['limit'] = 12;
+		$data['pagination'] = $this->url->link('marketing/marketplace.list', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}');
 
 		return $this->load->view('marketplace/marketplace_list', $data);
 	}
@@ -522,8 +426,6 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 
 		$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-		curl_close($curl);
-
 		if ($status == 200) {
 			$response_info = json_decode($response, true);
 		} else {
@@ -545,31 +447,18 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 				$data['error_warning'] = '';
 			}
 
-			$url = '';
+			$allowed = [
+				'filter_search',
+				'filter_category',
+				'filter_license',
+				'filter_rating',
+				'filter_member_type',
+				'filter_member',
+				'sort',
+				'page'
+			];
 
-			if (isset($this->request->get['filter_search'])) {
-				$url .= '&filter_search=' . $this->request->get['filter_search'];
-			}
-
-			if (isset($this->request->get['filter_category'])) {
-				$url .= '&filter_category=' . $this->request->get['filter_category'];
-			}
-
-			if (isset($this->request->get['filter_license'])) {
-				$url .= '&filter_license=' . $this->request->get['filter_license'];
-			}
-
-			if (isset($this->request->get['filter_username'])) {
-				$url .= '&filter_username=' . $this->request->get['filter_username'];
-			}
-
-			if (isset($this->request->get['sort'])) {
-				$url .= '&sort=' . $this->request->get['sort'];
-			}
-
-			if (isset($this->request->get['page'])) {
-				$url .= '&page=' . $this->request->get['page'];
-			}
+			$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 			$data['back'] = $this->url->link('marketplace/marketplace', 'user_token=' . $this->session->data['user_token'] . $url);
 
@@ -785,8 +674,6 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 
 			$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-			curl_close($curl);
-
 			if ($status == 200) {
 				$response_info = json_decode($response, true);
 			} else {
@@ -873,8 +760,6 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 			$response = curl_exec($curl);
 
 			$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-			curl_close($curl);
 
 			if ($status == 200) {
 				$response_info = json_decode($response, true);
@@ -989,8 +874,6 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 
 			$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-			curl_close($curl);
-
 			if ($status == 200) {
 				$response_info = json_decode($response, true);
 			} else {
@@ -1044,8 +927,6 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 
 		$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-		curl_close($curl);
-
 		if ($status == 200) {
 			$json = json_decode($response, true);
 		} else {
@@ -1080,12 +961,10 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 
 		$comment_total = $json['comment_total'];
 
-		$data['pagination'] = $this->load->controller('common/pagination', [
-			'total' => $comment_total,
-			'page'  => $page,
-			'limit' => 20,
-			'url'   => $this->url->link('marketplace/marketplace.comment', 'user_token=' . $this->session->data['user_token'] . '&extension_id=' . $extension_id . '&page={page}')
-		]);
+		$data['total'] = $comment_total;
+		$data['page'] = $page;
+		$data['limit'] = 20;
+		$data['pagination'] = $this->url->link('marketing/marketplace.comment', 'user_token=' . $this->session->data['user_token'] . '&extension_id=' . $extension_id . '&page={page}');
 
 		$data['refresh'] = $this->url->link('marketplace/marketplace.comment', 'user_token=' . $this->session->data['user_token'] . '&extension_id=' . $extension_id . '&page=' . $page);
 
@@ -1128,8 +1007,6 @@ class Marketplace extends \Opencart\System\Engine\Controller {
 		$response = curl_exec($curl);
 
 		$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-		curl_close($curl);
 
 		if ($status == 200) {
 			$json = json_decode($response, true);

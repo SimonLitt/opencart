@@ -34,12 +34,6 @@ class Country extends \Opencart\System\Engine\Controller {
 			$filter_iso_code_3 = '';
 		}
 
-		if (isset($this->request->get['filter_store_id'])) {
-			$filter_store_id = (int)$this->request->get['filter_store_id'];
-		} else {
-			$filter_store_id = '';
-		}
-
 		if (isset($this->request->get['filter_language_id'])) {
 			$filter_language_id = $this->request->get['filter_language_id'];
 		} else {
@@ -52,39 +46,18 @@ class Country extends \Opencart\System\Engine\Controller {
 			$filter_status = '';
 		}
 
-		$url = '';
+		$allowed = [
+			'filter_name',
+			'filter_iso_code_2',
+			'filter_iso_code_3',
+			'filter_language_id',
+			'filter_status',
+			'sort',
+			'order',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_iso_code_2'])) {
-			$url .= '&filter_iso_code_2=' . urlencode(html_entity_decode($this->request->get['filter_iso_code_2'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_iso_code_3'])) {
-			$url .= '&filter_iso_code_3=' . urlencode(html_entity_decode($this->request->get['filter_iso_code_3'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_store_id'])) {
-			$url .= '&filter_store_id=' . (int)$this->request->get['filter_store_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['breadcrumbs'] = [];
 
@@ -105,11 +78,6 @@ class Country extends \Opencart\System\Engine\Controller {
 
 		$data['list'] = $this->getList();
 
-		// Stores
-		$this->load->model('setting/store');
-
-		$data['stores'] = $this->model_setting_store->getStores();
-
 		// Languages
 		$this->load->model('localisation/language');
 
@@ -118,7 +86,6 @@ class Country extends \Opencart\System\Engine\Controller {
 		$data['filter_name'] = $filter_name;
 		$data['filter_iso_code_2'] = $filter_iso_code_2;
 		$data['filter_iso_code_3'] = $filter_iso_code_3;
-		$data['filter_store_id'] = $filter_store_id;
 		$data['filter_language_id'] = $filter_language_id;
 		$data['filter_status'] = $filter_status;
 
@@ -166,12 +133,6 @@ class Country extends \Opencart\System\Engine\Controller {
 			$filter_iso_code_3 = '';
 		}
 
-		if (isset($this->request->get['filter_store_id'])) {
-			$filter_store_id = $this->request->get['filter_store_id'];
-		} else {
-			$filter_store_id = '';
-		}
-
 		if (isset($this->request->get['filter_language_id'])) {
 			$filter_language_id = $this->request->get['filter_language_id'];
 		} else {
@@ -202,39 +163,18 @@ class Country extends \Opencart\System\Engine\Controller {
 			$page = 1;
 		}
 
-		$url = '';
+		$allowed = [
+			'filter_name',
+			'filter_iso_code_2',
+			'filter_iso_code_3',
+			'filter_language_id',
+			'filter_status',
+			'sort',
+			'order',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_iso_code_2'])) {
-			$url .= '&filter_iso_code_2=' . urlencode(html_entity_decode($this->request->get['filter_iso_code_2'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_iso_code_3'])) {
-			$url .= '&filter_iso_code_3=' . urlencode(html_entity_decode($this->request->get['filter_iso_code_3'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_store_id'])) {
-			$url .= '&filter_store_id=' . (int)$this->request->get['filter_store_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['action'] = $this->url->link('localisation/country.list', 'user_token=' . $this->session->data['user_token'] . $url);
 
@@ -245,7 +185,6 @@ class Country extends \Opencart\System\Engine\Controller {
 			'filter_name'        => $filter_name,
 			'filter_iso_code_2'  => $filter_iso_code_2,
 			'filter_iso_code_3'  => $filter_iso_code_3,
-			'filter_store_id'    => $filter_store_id,
 			'filter_language_id' => $filter_language_id,
 			'filter_status'      => $filter_status,
 			'sort'               => $sort,
@@ -265,27 +204,15 @@ class Country extends \Opencart\System\Engine\Controller {
 		// Default
 		$data['country_id'] = $this->config->get('config_country_id');
 
-		$url = '';
+		$allowed = [
+			'filter_name',
+			'filter_iso_code_2',
+			'filter_iso_code_3',
+			'filter_language_id',
+			'filter_status',
+		];
 
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_iso_code_2'])) {
-			$url .= '&filter_iso_code_2=' . urlencode(html_entity_decode($this->request->get['filter_iso_code_2'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_iso_code_3'])) {
-			$url .= '&filter_iso_code_3=' . urlencode(html_entity_decode($this->request->get['filter_iso_code_3'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_store_id'])) {
-			$url .= '&filter_store_id=' . (int)$this->request->get['filter_store_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		if ($order == 'ASC') {
 			$url .= '&order=DESC';
@@ -299,46 +226,26 @@ class Country extends \Opencart\System\Engine\Controller {
 		$data['sort_iso_code_3'] = $this->url->link('localisation/country.list', 'user_token=' . $this->session->data['user_token'] . '&sort=iso_code_3' . $url);
 		$data['sort_status'] = $this->url->link('localisation/country.list', 'user_token=' . $this->session->data['user_token'] . '&sort=status' . $url);
 
-		$url = '';
+		$allowed = [
+			'filter_name',
+			'filter_iso_code_2',
+			'filter_iso_code_3',
+			'filter_language_id',
+			'filter_status',
+			'sort',
+			'order'
+		];
 
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_iso_code_2'])) {
-			$url .= '&filter_iso_code_2=' . urlencode(html_entity_decode($this->request->get['filter_iso_code_2'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_iso_code_3'])) {
-			$url .= '&filter_iso_code_3=' . urlencode(html_entity_decode($this->request->get['filter_iso_code_3'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_store_id'])) {
-			$url .= '&filter_store_id=' . (int)$this->request->get['filter_store_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		// Total Countries
 		$country_total = $this->model_localisation_country->getTotalCountries($filter_data);
 
 		// Pagination
-		$data['pagination'] = $this->load->controller('common/pagination', [
-			'total' => $country_total,
-			'page'  => $page,
-			'limit' => $this->config->get('config_pagination_admin'),
-			'url'   => $this->url->link('localisation/country.list', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}')
-		]);
+		$data['total'] = $country_total;
+		$data['page'] = $page;
+		$data['limit'] = $this->config->get('config_pagination_admin');
+		$data['pagination'] = $this->url->link('localisation/country.list', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}');
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($country_total) ? (($page - 1) * $this->config->get('config_pagination_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_pagination_admin')) > ($country_total - $this->config->get('config_pagination_admin'))) ? $country_total : ((($page - 1) * $this->config->get('config_pagination_admin')) + $this->config->get('config_pagination_admin')), $country_total, ceil($country_total / $this->config->get('config_pagination_admin')));
 
@@ -360,39 +267,18 @@ class Country extends \Opencart\System\Engine\Controller {
 
 		$data['text_form'] = !isset($this->request->get['country_id']) ? $this->language->get('text_add') : $this->language->get('text_edit');
 
-		$url = '';
+		$allowed = [
+			'filter_name',
+			'filter_iso_code_2',
+			'filter_iso_code_3',
+			'filter_language_id',
+			'filter_status',
+			'sort',
+			'order',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_iso_code_2'])) {
-			$url .= '&filter_iso_code_2=' . urlencode(html_entity_decode($this->request->get['filter_iso_code_2'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_iso_code_3'])) {
-			$url .= '&filter_iso_code_3=' . urlencode(html_entity_decode($this->request->get['filter_iso_code_3'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_store_id'])) {
-			$url .= '&filter_store_id=' . (int)$this->request->get['filter_store_id'];
-		}
-
-		if (isset($this->request->get['filter_status'])) {
-			$url .= '&filter_status=' . $this->request->get['filter_status'];
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['breadcrumbs'] = [];
 
@@ -462,17 +348,6 @@ class Country extends \Opencart\System\Engine\Controller {
 			$data['postcode_required'] = 0;
 		}
 
-		// Stores
-		$this->load->model('setting/store');
-
-		$data['stores'] = $this->model_setting_store->getStores();
-
-		if (!empty($country_info)) {
-			$data['country_store'] = $this->model_localisation_country->getStores($country_info['country_id']);
-		} else {
-			$data['country_store'] = [0];
-		}
-
 		if (!empty($country_info)) {
 			$data['status'] = $country_info['status'];
 		} else {
@@ -507,7 +382,6 @@ class Country extends \Opencart\System\Engine\Controller {
 			'iso_code_3'          => '',
 			'address_format_id'   => 0,
 			'postcode_required'   => 0,
-			'country_store'       => [],
 			'status'              => 0
 		];
 
@@ -647,12 +521,6 @@ class Country extends \Opencart\System\Engine\Controller {
 		foreach ($selected as $country_id) {
 			if ($this->config->get('config_country_id') == $country_id) {
 				$json['error'] = $this->language->get('error_default');
-			}
-
-			$store_total = $this->model_setting_store->getTotalStoresByCountryId($country_id);
-
-			if ($store_total) {
-				$json['error'] = sprintf($this->language->get('error_store'), $store_total);
 			}
 
 			// Total Customers

@@ -9,7 +9,9 @@ class ReturnReason extends \Opencart\System\Engine\Controller {
 	/**
 	 * Index
 	 *
-	 * Generates return reason task list.
+	 * Generate return reason task list.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -41,13 +43,15 @@ class ReturnReason extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		return ['success' => $this->language->get('text_success')];
+		return ['success' => $this->language->get('text_task')];
 	}
 
 	/**
 	 * List
 	 *
-	 * Generates return reason list file.
+	 * Generate JSON return reason list file.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -91,8 +95,8 @@ class ReturnReason extends \Opencart\System\Engine\Controller {
 
 		$return_reasons = $this->model_localisation_return_reason->getReturnReasons($filter_data);
 
-		$base = DIR_OPENCART . 'shop/';
-		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/data/localisation/';
+		$base = DIR_CATALOG . 'view/data/';
+		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/localisation/';
 		$filename = 'return_reason.json';
 
 		if (!oc_directory_create($base . $directory, 0777)) {
@@ -106,6 +110,15 @@ class ReturnReason extends \Opencart\System\Engine\Controller {
 		return ['success' => sprintf($this->language->get('text_list'), $language_info['name'])];
 	}
 
+	/**
+	 * Clear
+	 *
+	 * Delete generated JSON language files.
+	 *
+	 * @param array<string, string> $args
+	 *
+	 * @return array
+	 */
 	public function clear(array $args = []): array {
 		$this->load->language('task/catalog/return_reason');
 
@@ -119,7 +132,7 @@ class ReturnReason extends \Opencart\System\Engine\Controller {
 
 		foreach ($stores as $store) {
 			foreach ($languages as $language) {
-				$file = DIR_OPENCART . 'shop/' . parse_url($store['url'], PHP_URL_HOST) . '/' . $language['code'] . '/data/localisation/return_reason.json';
+				$file = DIR_CATALOG . 'view/data/' . parse_url($store['url'], PHP_URL_HOST) . '/' . $language['code'] . '/localisation/return_reason.json';
 
 				if (is_file($file)) {
 					unlink($file);

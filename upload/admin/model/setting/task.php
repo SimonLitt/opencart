@@ -45,7 +45,7 @@ class Task extends \Opencart\System\Engine\Model {
 	 *
 	 * $this->model_setting_task->editStatus($task_id, $status);
 	 */
-	public function editStatus(int $task_id, string $status, array $response = []): void {
+	public function editStatus(int $task_id, string $status, string $response = ''): void {
 		$allowed = [
 			'pending',
 			'processing',
@@ -58,7 +58,7 @@ class Task extends \Opencart\System\Engine\Model {
 			$status = 'failed';
 		}
 
-		$this->db->query("UPDATE `" . DB_PREFIX . "task` SET `response` = '" . $this->db->escape(json_encode($response)) . "', `status` = '" . $this->db->escape($status) . "', `date_modified` = NOW() WHERE `task_id` = '" . (int)$task_id . "'");
+		$this->db->query("UPDATE `" . DB_PREFIX . "task` SET `response` = '" . $this->db->escape($response) . "', `status` = '" . $this->db->escape($status) . "', `date_modified` = NOW() WHERE `task_id` = '" . (int)$task_id . "'");
 	}
 
 	/**
@@ -183,10 +183,7 @@ class Task extends \Opencart\System\Engine\Model {
 		$query = $this->db->query($sql);
 
 		foreach ($query->rows as $result) {
-			$task_data[] = [
-				'args'     => $result['args'] ? json_decode($result['args'], true) : [],
-				'response' => $result['response'] ? json_decode($result['response'], true) : [],
-			] + $result;
+			$task_data[] = ['args' => $result['args'] ? json_decode($result['args'], true) : []] + $result;
 		}
 
 		return $task_data;
@@ -233,4 +230,61 @@ class Task extends \Opencart\System\Engine\Model {
 
 		return (int)$query->row['total'];
 	}
+
+	public function addLog($code, $comment, $status): void {
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "task_log` SET `code` = '" . $this->db->escape($code) . "', `comment` = '" . $this->db->escape($comment) . "', `status` = '" . (bool)$status . "', `date_added` = NOW()");
+	}
+
+	/**
+	 * Get Logs
+	 *
+	 * Get the record of the return history records in the database.
+	 *
+	 * @param int $return_id primary key of the return record
+	 * @param int $start
+	 * @param int $limit
+	 *
+	 * @return array<int, array<string, mixed>> history records that have return ID
+	 *
+	 * @example
+	 *
+	 * $this->load->model('sale/subscription');
+	 *
+	 * $results = $this->model_sale_returns->getHistories($return_id, $start, $limit);
+	 */
+	public function getLogs(int $start = 0, int $limit = 10): array {
+		if ($start < 0) {
+			$start = 0;
+		}
+
+		if ($limit < 1) {
+			$limit = 10;
+		}
+
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "task_log` ORDER BY `date_added` DESC LIMIT " . (int)$start . "," . (int)$limit);
+
+		return $query->rows;
+	}
+
+	/**
+	 * Get Total Logs
+	 *
+	 * Get the total number of total return history records in the database.
+	 *
+	 * @param int $return_id primary key of the return record
+	 *
+	 * @return int total number of history records that have return ID
+	 *
+	 * @example
+	 *
+	 * $this->load->model('sale/subscription');
+	 *
+	 * $history_total = $this->model_sale_returns->getTotalHistories($return_id);
+	 */
+	public function getTotalLogs(): int {
+		$query = $this->db->query("SELECT COUNT(*) AS `total` FROM `" . DB_PREFIX . "task_log`");
+
+		return (int)$query->row['total'];
+	}
+
 }

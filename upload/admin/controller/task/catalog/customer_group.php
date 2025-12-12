@@ -9,7 +9,9 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 	/**
 	 * Index
 	 *
-	 * Generates customer group task list.
+	 * Generate customer group task list.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -41,13 +43,15 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		return ['success' => $this->language->get('text_success')];
+		return ['success' => $this->language->get('text_task')];
 	}
 
 	/**
 	 * List
 	 *
-	 * Generates customer group list file.
+	 * Generate JSON customer group list file.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -104,8 +108,8 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 			$this->model_setting_task->addTask($task_data);
 		}
 
-		$base = DIR_OPENCART . 'shop/';
-		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/data/customer/';
+		$base = DIR_CATALOG . 'view/data/';
+		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/customer/';
 		$filename = 'customer_group.json';
 
 		if (!oc_directory_create($base . $directory, 0777)) {
@@ -122,7 +126,9 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 	/**
 	 * Info
 	 *
-	 * Generates customer group information.
+	 * Generate customer group information.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -184,9 +190,9 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 
 		$custom_fields = $this->model_customer_custom_field->getCustomFields($filter_data);
 
-		$base = DIR_OPENCART . 'shop/';
+		$base = DIR_CATALOG . 'view/data/';
 		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/customer/';
-		$filename = 'customer_group-' . $customer_group_info['country_id'] . '.json';
+		$filename = 'customer_group-' . $customer_group_info['customer_group_id'] . '.json';
 
 		if (!oc_directory_create($base . $directory, 0777)) {
 			return ['error' => sprintf($this->language->get('error_directory'), $directory)];
@@ -202,7 +208,9 @@ class CustomerGroup extends \Opencart\System\Engine\Controller {
 	/**
 	 * Clear
 	 *
-	 * Clears generated country files.
+	 * Delete generated JSON country files.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */

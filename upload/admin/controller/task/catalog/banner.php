@@ -9,7 +9,9 @@ class Banner extends \Opencart\System\Engine\Controller {
 	/**
 	 * Index
 	 *
-	 * Generates banner task list.
+	 * Generate banner task list.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -30,7 +32,7 @@ class Banner extends \Opencart\System\Engine\Controller {
 			foreach ($languages as $language) {
 				$task_data = [
 					'code'   => 'banner',
-					'action' => 'task/catalog/banner',
+					'action' => 'task/catalog/banner.list',
 					'args'   => [
 						'store_id'    => $store['store_id'],
 						'language_id' => $language['language_id']
@@ -41,13 +43,15 @@ class Banner extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		return ['success' => $this->language->get('text_success')];
+		return ['success' => $this->language->get('text_task')];
 	}
 
 	/**
 	 * List
 	 *
-	 * Generates customer group list file.
+	 * Generate JSON banner list file.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -100,18 +104,20 @@ class Banner extends \Opencart\System\Engine\Controller {
 			$this->model_setting_task->addTask($task_data);
 		}
 
-		return ['success' => $this->language->get('text_success')];
+		return ['success' => $this->language->get('text_list')];
 	}
 
 
 	/**
 	 * Info
 	 *
-	 * Generates banner information.
+	 * Generate banner information.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
-	public function banner(array $args = []): array {
+	public function info(array $args = []): array {
 		$this->load->language('task/catalog/banner');
 
 		$this->load->model('setting/store');
@@ -139,7 +145,7 @@ class Banner extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!$banner_info['status']) {
-			return [];
+			return ['success' => sprintf($this->language->get('text_skip'), $store_info['name'], $language_info['name'], $banner_info['name'])];
 		}
 
 		$base = DIR_CATALOG . 'view/data/';
@@ -150,7 +156,7 @@ class Banner extends \Opencart\System\Engine\Controller {
 			return ['error' => sprintf($this->language->get('error_directory'), $directory)];
 		}
 
-		if (!file_put_contents($base . $directory . $filename, json_encode($banner_info + ['banner_image' => $this->model_design_banner->getImageDescription($banner_info['banner_id'], $language_info['language_id'])]))) {
+		if (!file_put_contents($base . $directory . $filename, json_encode($banner_info + ['banner_image' => $this->model_design_banner->getImages($banner_info['banner_id'], $language_info['language_id'])]))) {
 			return ['error' => sprintf($this->language->get('error_file'), $directory . $filename)];
 		}
 
@@ -160,7 +166,9 @@ class Banner extends \Opencart\System\Engine\Controller {
 	/**
 	 * Clear
 	 *
-	 * Clears generated banners.
+	 * Delete generated JSON banner files.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */

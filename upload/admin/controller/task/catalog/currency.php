@@ -9,14 +9,25 @@ class Currency extends \Opencart\System\Engine\Controller {
 	/**
 	 * Index
 	 *
-	 * Generates currency task list.
+	 * Generate currency task list.
 	 *
-	 * @return void
+	 * @param array<string, string> $args
+	 *
+	 * @return array
 	 */
 	public function index(array $args = []): array {
 		$this->load->language('task/catalog/currency');
 
+		// Clear old data
+		$task_data = [
+			'code'   => 'currency',
+			'action' => 'task/catalog/currency.clear',
+			'args'   => []
+		];
+
 		$this->load->model('setting/task');
+
+		$this->model_setting_task->addTask($task_data);
 
 		$this->load->model('setting/store');
 
@@ -30,7 +41,7 @@ class Currency extends \Opencart\System\Engine\Controller {
 			foreach ($languages as $language) {
 				$task_data = [
 					'code'   => 'currency',
-					'action' => 'task/admin/currency.list',
+					'action' => 'task/catalog/currency.list',
 					'args'   => [
 						'store_id'    => $store['store_id'],
 						'language_id' => $language['language_id']
@@ -41,9 +52,18 @@ class Currency extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		return ['success' => $this->language->get('text_success')];
+		return ['success' => $this->language->get('text_task')];
 	}
 
+	/**
+	 * List
+	 *
+	 * Generate JSON currency list file.
+	 *
+	 * @param array<string, string> $args
+	 *
+	 * @return array
+	 */
 	public function list(array $args = []): array {
 		$this->load->language('task/catalog/currency');
 
@@ -78,8 +98,8 @@ class Currency extends \Opencart\System\Engine\Controller {
 
 		$currencies = $this->model_localisation_currency->getCurrencies();
 
-		$base = DIR_OPENCART . 'shop/';
-		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/data/localisation/';
+		$base = DIR_CATALOG . 'view/data/';
+		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/localisation/';
 		$filename = 'currency.json';
 
 		if (!oc_directory_create($base . $directory, 0777)) {
@@ -96,7 +116,9 @@ class Currency extends \Opencart\System\Engine\Controller {
 	/**
 	 * Clear
 	 *
-	 * Clears generated country files.
+	 * Delete generated JSON currency files.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -113,7 +135,7 @@ class Currency extends \Opencart\System\Engine\Controller {
 
 		foreach ($stores as $store) {
 			foreach ($languages as $language) {
-				$file = DIR_OPENCART . 'shop/' . parse_url($store['url'], PHP_URL_HOST) . '/' . $language['code'] . '/localisation/currency.json';
+				$file = DIR_CATALOG . 'view/data/' . parse_url($store['url'], PHP_URL_HOST) . '/' . $language['code'] . '/localisation/currency.json';
 
 				if (is_file($file)) {
 					unlink($file);

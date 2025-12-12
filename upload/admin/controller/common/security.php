@@ -153,14 +153,14 @@ class Security extends \Opencart\System\Engine\Controller {
 
 		$json = [];
 
-		if (isset($this->request->post['name'])) {
-			$name = preg_replace('/[^a-zA-Z0-9_\.]/', '', basename(html_entity_decode(trim($this->request->post['name']), ENT_QUOTES, 'UTF-8')));
+		if (isset($this->request->get['name'])) {
+			$name = preg_replace('/[^a-zA-Z0-9_\.\-]/', '', basename(html_entity_decode(trim($this->request->get['name']), ENT_QUOTES, 'UTF-8')));
 		} else {
 			$name = '';
 		}
 
-		if (isset($this->request->post['path'])) {
-			$path = preg_replace('/[^a-zA-Z0-9_\:\/\.]/', '', html_entity_decode(trim($this->request->post['path']), ENT_QUOTES, 'UTF-8'));
+		if (isset($this->request->get['path'])) {
+			$path = preg_replace('/[^a-zA-Z0-9_\:\/\.\-]/', '', html_entity_decode(trim($this->request->get['path']), ENT_QUOTES, 'UTF-8'));
 		} else {
 			$path = '';
 		}
@@ -169,23 +169,25 @@ class Security extends \Opencart\System\Engine\Controller {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
+		if (isset($this->request->get['page'])) {
+			$page = (int)$this->request->get['page'];
+		} else {
+			$page = 1;
+		}
+
 		if (!$json) {
 			$base_old = DIR_STORAGE;
 			$base_new = $path . $name . '/';
 
 			// Check current storage path exists
 			if (!is_dir($base_old)) {
-				$json['error'] = $this->language->get('error_storage_exists_old');
-			}
-
-			if (is_dir($base_new)) {
-				$json['error'] = $this->language->get('error_storage_exists_new');
+				$json['error'] = $this->language->get('error_storage');
 			}
 
 			// Check the chosen directory is not in the public webspace C:/xampp/htdocs
-			$root = str_replace('\\', '/', realpath($this->request->server['DOCUMENT_ROOT'] . '/../'));
+			$root = str_replace('\\', '/', realpath($this->request->server['DOCUMENT_ROOT'] . '/../')) . '/';
 
-			if ((substr($root, 0, strlen($path)) != $path) || ($root == $base_new)) {
+			if ((substr($base_new, 0, strlen($root)) != $path) || ($root == $base_new)) {
 				$json['error'] = $this->language->get('error_storage_root');
 			}
 
@@ -199,26 +201,69 @@ class Security extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!$json) {
-			$task_data = [
-				'code'   => 'security',
-				'action' => 'task/system/storage',
-				'args'   => [
-					'base_old' => $base_old,
-					'base_new' => $base_new
-				]
-			];
+			$files = oc_directory_read($base_old, true);
 
-			$this->load->model('setting/task');
+			$total = count($files);
+			$limit = 200;
 
-			$this->model_setting_task->addTask($task_data);
+			$start = ($page - 1) * $limit;
+			$end = ($start > ($total - $limit)) ? $total : ($start + $limit);
 
-			$json['success'] = $this->language->get('text_storage_success');
+			foreach (array_slice($files, $start, $end) as $file) {
+				$destination = substr($file, strlen($base_old));
+
+				oc_directory_create($base_new . dirname($destination), 0777);
+
+				// Must not have a path before files and directories can be moved
+				if (is_file($base_old . $destination) && !is_file($base_new . $destination)) {
+					copy($base_old . $destination, $base_new . $destination);
+				}
+			}
+
+			if ($end < $total) {
+				$json['text'] = sprintf($this->language->get('text_storage_move'), $start, $end, $total);
+
+				$json['next'] = $this->url->link('common/security.storage', '&user_token=' . $this->session->data['user_token'] . '&name=' . $name . '&path=' . $path . '&page=' . ($page + 1), true);
+			} else {
+				// Modify the config files
+				$files = [
+					DIR_APPLICATION . 'config.php',
+					DIR_OPENCART . 'config.php'
+				];
+
+				foreach ($files as $file) {
+					$output = '';
+
+					$lines = file($file);
+
+					foreach ($lines as $line_id => $line) {
+						if (str_contains($line, 'define(\'DIR_STORAGE')) {
+							$output .= 'define(\'DIR_STORAGE\', \'' . $base_new . '\');' . "\n";
+						} else {
+							$output .= $line;
+						}
+					}
+
+					$file = fopen($file, 'w');
+
+					fwrite($file, $output);
+
+					fclose($file);
+				}
+
+				$json['success'] = $this->language->get('text_storage_success');
+			}
 		}
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}
 
+	/*
+	 * Storage Delete
+	 *
+	 * @return void
+	 */
 	public function storage_delete() {
 		$this->load->language('common/security');
 
@@ -258,10 +303,16 @@ class Security extends \Opencart\System\Engine\Controller {
 
 		$json = [];
 
-		if (isset($this->request->post['name'])) {
-			$name = preg_replace('/[^a-zA-Z0-9]/', '', basename(html_entity_decode(trim((string)$this->request->post['name']), ENT_QUOTES, 'UTF-8')));
+		if (isset($this->request->get['name'])) {
+			$name = preg_replace('/[^a-zA-Z0-9]/', '', basename(html_entity_decode(trim((string)$this->request->get['name']), ENT_QUOTES, 'UTF-8')));
 		} else {
 			$name = 'admin';
+		}
+
+		if (isset($this->request->get['page'])) {
+			$page = (int)$this->request->get['page'];
+		} else {
+			$page = 1;
 		}
 
 		if (!$this->user->hasPermission('modify', 'common/security')) {
@@ -276,7 +327,7 @@ class Security extends \Opencart\System\Engine\Controller {
 				$json['error'] = $this->language->get('error_admin_exists_old');
 			}
 
-			if (is_dir($base_new)) {
+			if ($page == 1 && is_dir($base_new)) {
 				$json['error'] = $this->language->get('error_admin_exists_new');
 			}
 
@@ -299,20 +350,58 @@ class Security extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!$json) {
-			$task_data = [
-				'code'   => 'security',
-				'action' => 'task/system/admin',
-				'args'   => ['name' => $name]
-			];
+			$files = oc_directory_read($base_old, true);
 
-			$this->load->model('setting/task');
+			$total = count($files);
+			$limit = 200;
 
-			$this->model_setting_task->addTask($task_data);
+			$start = ($page - 1) * $limit;
+			$end = ($start > ($total - $limit)) ? $total : ($start + $limit);
 
-			$this->session->data['success'] = $this->language->get('text_admin_success');
+			// 4. Copy the files across
+			foreach (array_slice($files, $start, $end) as $file) {
+				$destination = substr($file, strlen($base_old));
 
-			// 6. Redirect to the new admin
-			$json['redirect'] = str_replace('&amp;', '&', substr(HTTP_SERVER, 0, -6) . $name . '/index.php?route=common/login');
+				oc_directory_create($base_new . dirname($destination), 0777);
+
+				if (is_file($base_old . $destination) && !is_file($base_new . $destination)) {
+					copy($base_old . $destination, $base_new . $destination);
+				}
+			}
+
+			if ($end < $total) {
+				$json['text'] = sprintf($this->language->get('text_admin_move'), $start, $end, $total);
+
+				$json['next'] = $this->url->link('common/security.admin', '&user_token=' . $this->session->data['user_token'] . '&name=' . $name . '&page=' . ($page + 1), true);
+			} else {
+				// Update the old config files
+				$file = $base_new . 'config.php';
+
+				$output = '';
+
+				$lines = file($file);
+
+				foreach ($lines as $line_id => $line) {
+					if (strpos($line, 'define(\'HTTP_SERVER') !== false) {
+						$output .= 'define(\'HTTP_SERVER\', \'' . substr(HTTP_SERVER, 0, strrpos(HTTP_SERVER, '/admin/')) . '/' . $name . '/\');' . "\n";
+					} elseif (strpos($line, 'define(\'DIR_APPLICATION') !== false) {
+						$output .= 'define(\'DIR_APPLICATION\', DIR_OPENCART . \'' . $name . '/\');' . "\n";
+					} else {
+						$output .= $line;
+					}
+				}
+
+				$file = fopen($file, 'w');
+
+				fwrite($file, $output);
+
+				fclose($file);
+
+				$json['success'] = $this->language->get('text_admin_success');
+
+				// 6. Redirect to the new admin
+				$json['redirect'] = str_replace('&amp;', '&', substr(HTTP_SERVER, 0, -6) . $name . '/index.php?route=common/login');
+			}
 		}
 
 		$this->response->addHeader('Content-Type: application/json');

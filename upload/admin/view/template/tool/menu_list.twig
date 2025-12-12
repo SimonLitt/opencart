@@ -24,7 +24,7 @@
                   {{ text_link }}
                 {% endif %}</td>
               <td class="text-end">{{ menu.sort_order }}</td>
-              <td class="text-end text-nowrap"><a href="{{ menu.edit }}" data-bs-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a></td>
+              <td class="text-end text-nowrap"><a href="{{ menu.edit }}" title="{{ button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a></td>
             </tr>
           {% endfor %}
         {% else %}
@@ -36,7 +36,7 @@
     </table>
   </div>
   <div class="row">
-    <div class="col-sm-6 text-start">{{ pagination }}</div>
+    <div class="col-sm-6 text-start"><x-pagination href="{{ pagination }}" target="#list" page="{{ page }}" limit="{{ limit }}" total="{{ total }}"></x-pagination></div>
     <div class="col-sm-6 text-end">{{ results }}</div>
   </div>
 </form>

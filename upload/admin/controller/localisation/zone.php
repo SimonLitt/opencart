@@ -46,31 +46,18 @@ class Zone extends \Opencart\System\Engine\Controller {
 
 		$this->document->setTitle($this->language->get('heading_title'));
 
-		$url = '';
+		$allowed = [
+			'filter_name' ,
+			'filter_country_id',
+			'filter_code',
+			'filter_language_id',
+			'filter_status',
+			'sort',
+			'order',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_country_id'])) {
-			$url .= '&filter_country_id=' . (int)$this->request->get['filter_country_id'];
-		}
-
-		if (isset($this->request->get['filter_code'])) {
-			$url .= '&filter_code=' . urlencode(html_entity_decode($this->request->get['filter_code'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['breadcrumbs'] = [];
 
@@ -166,7 +153,7 @@ class Zone extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['sort'])) {
 			$sort = (string)$this->request->get['sort'];
 		} else {
-			$sort = 'cd.name';
+			$sort = 'name';
 		}
 
 		if (isset($this->request->get['order'])) {
@@ -181,31 +168,18 @@ class Zone extends \Opencart\System\Engine\Controller {
 			$page = 1;
 		}
 
-		$url = '';
+		$allowed = [
+			'filter_name' ,
+			'filter_country_id',
+			'filter_code',
+			'filter_language_id',
+			'filter_status',
+			'sort',
+			'order',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_country_id'])) {
-			$url .= '&filter_country_id=' . (int)$this->request->get['filter_country_id'];
-		}
-
-		if (isset($this->request->get['filter_code'])) {
-			$url .= '&filter_code=' . urlencode(html_entity_decode($this->request->get['filter_code'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['action'] = $this->url->link('localisation/zone.list', 'user_token=' . $this->session->data['user_token'] . $url);
 
@@ -213,15 +187,15 @@ class Zone extends \Opencart\System\Engine\Controller {
 		$data['zones'] = [];
 
 		$filter_data = [
-			'filter_name'       => $filter_name,
-			'filter_country_id' => $filter_country_id,
-			'filter_code'       => $filter_code,
+			'filter_name'        => $filter_name,
+			'filter_country_id'  => $filter_country_id,
+			'filter_code'        => $filter_code,
 			'filter_language_id' => $filter_language_id,
-			'filter_status'     => $filter_status,
-			'sort'              => $sort,
-			'order'             => $order,
-			'start'             => ($page - 1) * $this->config->get('config_pagination_admin'),
-			'limit'             => $this->config->get('config_pagination_admin')
+			'filter_status'      => $filter_status,
+			'sort'               => $sort,
+			'order'              => $order,
+			'start'              => ($page - 1) * $this->config->get('config_pagination_admin'),
+			'limit'              => $this->config->get('config_pagination_admin')
 		];
 
 		$this->load->model('localisation/zone');
@@ -235,19 +209,15 @@ class Zone extends \Opencart\System\Engine\Controller {
 		// Default
 		$data['zone_id'] = $this->config->get('config_zone_id');
 
-		$url = '';
+		$allowed = [
+			'filter_name' ,
+			'filter_country_id',
+			'filter_code',
+			'filter_language_id',
+			'filter_status'
+		];
 
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_country_id'])) {
-			$url .= '&filter_country_id=' . (int)$this->request->get['filter_country_id'];
-		}
-
-		if (isset($this->request->get['filter_code'])) {
-			$url .= '&filter_code=' . urlencode(html_entity_decode($this->request->get['filter_code'], ENT_QUOTES, 'UTF-8'));
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		if ($order == 'ASC') {
 			$url .= '&order=DESC';
@@ -256,43 +226,31 @@ class Zone extends \Opencart\System\Engine\Controller {
 		}
 
 		// Sorts
-		$data['sort_country'] = $this->url->link('localisation/zone.list', 'user_token=' . $this->session->data['user_token'] . '&sort=cd.name' . $url);
-		$data['sort_name'] = $this->url->link('localisation/zone.list', 'user_token=' . $this->session->data['user_token'] . '&sort=zd.name' . $url);
-		$data['sort_code'] = $this->url->link('localisation/zone.list', 'user_token=' . $this->session->data['user_token'] . '&sort=z.code' . $url);
-		$data['sort_status'] = $this->url->link('localisation/zone.list', 'user_token=' . $this->session->data['user_token'] . '&sort=z.status' . $url);
+		$data['sort_country'] = $this->url->link('localisation/zone.list', 'user_token=' . $this->session->data['user_token'] . '&sort=country' . $url);
+		$data['sort_name'] = $this->url->link('localisation/zone.list', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url);
+		$data['sort_code'] = $this->url->link('localisation/zone.list', 'user_token=' . $this->session->data['user_token'] . '&sort=code' . $url);
+		$data['sort_status'] = $this->url->link('localisation/zone.list', 'user_token=' . $this->session->data['user_token'] . '&sort=status' . $url);
 
-		$url = '';
+		$allowed = [
+			'filter_name' ,
+			'filter_country_id',
+			'filter_code',
+			'filter_language_id',
+			'filter_status',
+			'sort',
+			'order',
+		];
 
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_country_id'])) {
-			$url .= '&filter_country_id=' . (int)$this->request->get['filter_country_id'];
-		}
-
-		if (isset($this->request->get['filter_code'])) {
-			$url .= '&filter_code=' . urlencode(html_entity_decode($this->request->get['filter_code'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		// Total Zones
 		$zone_total = $this->model_localisation_zone->getTotalZones($filter_data);
 
 		// Pagination
-		$data['pagination'] = $this->load->controller('common/pagination', [
-			'total' => $zone_total,
-			'page'  => $page,
-			'limit' => $this->config->get('config_pagination_admin'),
-			'url'   => $this->url->link('localisation/zone.list', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}')
-		]);
+		$data['total'] = $zone_total;
+		$data['page'] = $page;
+		$data['limit'] = $this->config->get('config_pagination_admin');
+		$data['pagination'] = $this->url->link('localisation/zone.list', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}');
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($zone_total) ? (($page - 1) * $this->config->get('config_pagination_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_pagination_admin')) > ($zone_total - $this->config->get('config_pagination_admin'))) ? $zone_total : ((($page - 1) * $this->config->get('config_pagination_admin')) + $this->config->get('config_pagination_admin')), $zone_total, ceil($zone_total / $this->config->get('config_pagination_admin')));
 
@@ -314,31 +272,18 @@ class Zone extends \Opencart\System\Engine\Controller {
 
 		$data['text_form'] = !isset($this->request->get['zone_id']) ? $this->language->get('text_add') : $this->language->get('text_edit');
 
-		$url = '';
+		$allowed = [
+			'filter_name' ,
+			'filter_country_id',
+			'filter_code',
+			'filter_language_id',
+			'filter_status',
+			'sort',
+			'order',
+			'page'
+		];
 
-		if (isset($this->request->get['filter_name'])) {
-			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['filter_country_id'])) {
-			$url .= '&filter_country_id=' . (int)$this->request->get['filter_country_id'];
-		}
-
-		if (isset($this->request->get['filter_code'])) {
-			$url .= '&filter_code=' . urlencode(html_entity_decode($this->request->get['filter_code'], ENT_QUOTES, 'UTF-8'));
-		}
-
-		if (isset($this->request->get['sort'])) {
-			$url .= '&sort=' . $this->request->get['sort'];
-		}
-
-		if (isset($this->request->get['order'])) {
-			$url .= '&order=' . $this->request->get['order'];
-		}
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
+		$url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip($allowed)));
 
 		$data['breadcrumbs'] = [];
 

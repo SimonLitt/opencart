@@ -9,86 +9,90 @@ class ReturnStatus extends \Opencart\System\Engine\Controller {
 	/**
 	 * Index
 	 *
-	 * Generates return status task list.
+	 * Generate return status task list.
 	 *
-	 * @return void
+	 * @param array<string, string> $args
+	 *
+	 * @return array
 	 */
 	public function index(array $args = []): array {
 		$this->load->language('task/admin/return_status');
 
+		// Clear old data
+		$task_data = [
+			'code'   => 'return_status',
+			'action' => 'task/admin/return_status.clear',
+			'args'   => []
+		];
+
 		$this->load->model('setting/task');
 
-		$this->load->model('localisation/language');
+		$this->model_setting_task->addTask($task_data);
 
-		$languages = $this->model_localisation_language->getLanguages();
+		// Create new data
+		$task_data = [
+			'code'   => 'return_status',
+			'action' => 'task/admin/return_status.list',
+			'args'   => []
+		];
 
-		foreach ($languages as $language) {
-			$task_data = [
-				'code'   => 'return_status',
-				'action' => 'task/admin/return_status.list',
-				'args'   => ['language_id' => $language['language_id']]
-			];
+		$this->model_setting_task->addTask($task_data);
 
-			$this->model_setting_task->addTask($task_data);
-		}
-
-		return ['success' => $this->language->get('text_success')];
+		return ['success' => $this->language->get('text_task')];
 	}
 
 	/**
 	 * List
 	 *
-	 * Generates the return status list file.
+	 * Generate JSON return status list file.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
 	public function list(array $args = []): array {
 		$this->load->language('task/admin/return_status');
 
-		if (!array_key_exists('language_id', $args)) {
-			return ['error' => $this->language->get('error_language')];
-		}
-		
-		$this->load->model('localisation/language');
-
-		$language_info = $this->model_localisation_language->getLanguage($args['language_id']);
-
-		if (!$language_info) {
-			return ['error' => $this->language->get('error_language')];
-		}
+		$return_status_data = [];
 
 		$this->load->model('localisation/return_status');
 
-		$return_statuses = $this->model_localisation_return_status->getReturnStatuses(['filter_language_id' => $language_info['language_id']]);
+		$return_statuses = $this->model_localisation_return_status->getReturnStatuses();
 
-		$base = DIR_APPLICATION . 'view/data/';
-		$directory = $language_info['code'] . '/localisation/';
+		foreach ($return_statuses as $return_status) {
+			$return_status_data[] = $return_status + ['description' => $this->model_localisation_return_reason->getDescriptions($return_status['return_status_id'])];
+		}
+
+		$directory = DIR_APPLICATION . 'view/data/localisation/';
 		$filename = 'return_status.json';
 
-		if (!oc_directory_create($base . $directory, 0777)) {
+		if (!oc_directory_create($directory, 0777)) {
 			return ['error' => sprintf($this->language->get('error_directory'), $directory)];
 		}
 
-		if (!file_put_contents($base . $directory . $filename, json_encode($return_statuses))) {
+		if (!file_put_contents($directory . $filename, json_encode($return_status_data))) {
 			return ['error' => sprintf($this->language->get('error_file'), $directory . $filename)];
 		}
 
-		return ['success' => sprintf($this->language->get('text_list'), $language_info['name'])];
+		return ['success' => $this->language->get('text_list')];
 	}
 
+	/**
+	 * Clear
+	 *
+	 * Delete generated JSON return status files.
+	 *
+	 * @param array<string, string> $args
+	 *
+	 * @return array
+	 */
 	public function clear(array $args = []): array {
 		$this->load->language('task/admin/return_status');
 
-		$this->load->model('localisation/language');
+		$file = DIR_APPLICATION . 'view/data/localisation/return_status.json';
 
-		$languages = $this->model_localisation_language->getLanguages();
-
-		foreach ($languages as $language) {
-			$file = DIR_APPLICATION . 'view/data/' . $language['code'] . '/localisation/return_status.json';
-
-			if (is_file($file)) {
-				unlink($file);
-			}
+		if (is_file($file)) {
+			unlink($file);
 		}
 
 		return ['success' => $this->language->get('text_clear')];

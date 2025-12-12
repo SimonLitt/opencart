@@ -60,50 +60,5 @@
     </div>
   </div>
 </div>
-<script type="text/javascript"><!--
-$('#button-upgrade').on('click', function() {
-    var element = this;
-
-    $(element).button('loading');
-
-    if (confirm('{{ text_confirm }}')) {
-        $('#progress').html('{{ text_download|escape('js') }}');
-
-        $.ajax({
-            url: 'index.php?route=tool/upgrade.download&user_token={{ user_token }}&version={{ latest_version }}',
-            dataType: 'json',
-            beforeSend: function() {
-                $(element).button('loading');
-            },
-            complete: function() {
-                $(element).button('reset');
-            },
-            success: function(json) {
-                console.log(json);
-
-                $('#input-upgrade').removeClass('is-valid is-invalid');
-
-                if (json['error']) {
-                    $('#input-upgrade').val(json['error']);
-                    $('#input-upgrade').addClass('is-invalid');
-
-                    $(element).button('reset');
-                }
-
-                if (json['success']) {
-                    $('#input-upgrade').val(json['success']);
-
-                    $('#input-upgrade').val(json['success']);
-                    $('#input-upgrade').addClass('is-valid');
-                }
-            },
-            error: function(xhr, ajaxOptions, thrownError) {
-                console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-
-                $(element).button('reset');
-            }
-        });
-    }
-});
-//--></script>
+<script type="text/javascript" src="view/javascript/upgrade.js"></script>
 {{ footer }}

@@ -9,13 +9,27 @@ class Translation extends \Opencart\System\Engine\Controller {
 	/**
 	 * Index
 	 *
-	 * Generates the translation list.
+	 * Generate translation task list.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
 	public function index(array $args = []): array {
 		$this->load->language('task/catalog/translation');
 
+		// Clear old data
+		$task_data = [
+			'code'   => 'translation',
+			'action' => 'task/catalog/translation.clear',
+			'args'   => []
+		];
+
+		$this->load->model('setting/task');
+
+		$this->model_setting_task->addTask($task_data);
+
+		// Generate new data
 		$ignore = [
 			'api',
 			'mail',
@@ -82,11 +96,15 @@ class Translation extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		return ['success' => $this->language->get('text_success')];
+		return ['success' => $this->language->get('text_task')];
 	}
 
-	/*
+	/**
 	 * Write
+	 *
+	 * Write JSON translation file.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -137,7 +155,6 @@ class Translation extends \Opencart\System\Engine\Controller {
 			'filter_route'       => $args['route'],
 			'filter_store_id'    => $store_info['store_id'],
 			'filter_language_id' => $language_info['language_id']
-
 		];
 
 		// Overrides
@@ -155,8 +172,8 @@ class Translation extends \Opencart\System\Engine\Controller {
 
 		$pos = strrpos($args['route'], '/');
 
-		$base = DIR_OPENCART . 'shop/';
-		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/data/language/'  .  substr($args['route'], 0, $pos) . '/';
+		$base = DIR_CATALOG . 'view/language/';
+		$directory = parse_url($store_info['url'], PHP_URL_HOST) . '/' . $language_info['code'] . '/'  .  substr($args['route'], 0, $pos) . '/';
 		$filename = substr($args['route'], $pos + 1) . '.json';
 
 		if (!oc_directory_create($base . $directory, 0777)) {
@@ -167,13 +184,15 @@ class Translation extends \Opencart\System\Engine\Controller {
 			return ['error' => sprintf($this->language->get('error_file'), $directory . $filename)];
 		}
 
-		return ['success' => $this->language->get('text_success')];
+		return ['success' => sprintf($this->language->get('text_write'), $store_info['name'], $language_info['name'], $args['route'])];
 	}
 
 	/**
 	 * Clear
 	 *
-	 * Clears generated translation files.
+	 * Delete generated JSON translation files.
+	 *
+	 * @param array<string, string> $args
 	 *
 	 * @return array
 	 */
@@ -190,7 +209,7 @@ class Translation extends \Opencart\System\Engine\Controller {
 
 		foreach ($stores as $store) {
 			foreach ($languages as $language) {
-				$directories = oc_directory_read(DIR_OPENCART . 'shop/' . parse_url($store['url'], PHP_URL_HOST) . '/' . $language['code'] . '/data/language/', false);
+				$directories = oc_directory_read(DIR_CATALOG . 'view/language/' . parse_url($store['url'], PHP_URL_HOST) . '/' . $language['code'] . '/language/', false);
 
 				foreach ($directories as $directory) {
 					oc_directory_delete($directory);

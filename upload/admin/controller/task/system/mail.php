@@ -18,8 +18,22 @@ class Mail extends \Opencart\System\Engine\Controller {
 			return ['error' => $this->language->get('error_engine')];
 		}
 
-		if (empty($args['to']) || !oc_validate_email($args['to'])) {
+		if (empty($args['to'])) {
 			return ['error' => $this->language->get('error_to')];
+		}
+
+		$recipients = [];
+
+		if (!is_array($args['to'])) {
+			$recipients[] = $args['to'];
+		} else {
+			$recipients = $args['to'];
+		}
+
+		foreach ($recipients as $recipient) {
+			if (!oc_validate_email($recipient)) {
+				return ['error' => $this->language->get('error_to')];
+			}
 		}
 
 		if (empty($args['from']) || !oc_validate_email($args['from'])) {
@@ -41,13 +55,7 @@ class Mail extends \Opencart\System\Engine\Controller {
 		if (empty($args['content'])) {
 			return ['error' => $this->language->get('error_content')];
 		}
-
-		$email = trim($args['to']);
-
-		if (!oc_validate_email($email)) {
-			return [];
-		}
-
+		
 		$mail_option = [
 			'parameter'     => $this->config->get('config_mail_parameter'),
 			'smtp_hostname' => $this->config->get('config_mail_smtp_hostname'),
@@ -58,7 +66,7 @@ class Mail extends \Opencart\System\Engine\Controller {
 		];
 
 		$mail = new \Opencart\System\Library\Mail($this->config->get('config_mail_engine'), $mail_option);
-		$mail->setTo($email);
+		$mail->setTo($recipients);
 		$mail->setFrom($args['from']);
 		$mail->setSender($args['sender']);
 		
